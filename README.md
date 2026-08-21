@@ -83,8 +83,10 @@ docker run -it --rm -p 5678:5678 \
 Everything is in one file: **[`google-sheets/XYZ-Properties-CRM.xlsx`](google-sheets/XYZ-Properties-CRM.xlsx)**
 
 1. Drop it in Google Drive → right-click → **Open with → Google Sheets** → **File → Save as Google Sheets**.
-2. Copy the ID out of the URL (`docs.google.com/spreadsheets/d/`**`THIS-PART`**`/edit`) into `SHEET_ID`
-   in the Config node of RE-00, RE-04 and RE-05.
+2. Copy the ID out of the URL (`docs.google.com/spreadsheets/d/`**`THIS-PART`**`/edit#gid=0`) into `SHEET_ID`
+   in the Config node of RE-00, RE-04, RE-05 and RE-06. That is the **whole file's** ID — ignore the
+   trailing `gid=`, which identifies one tab and is never used. Despite the name, `SHEET_ID` holds what
+   n8n calls the *Document*; each node then picks its *Sheet* (tab) by name.
 3. Share the sheet with the Google account behind your n8n credential, as **Editor**.
 
 Seven tabs:

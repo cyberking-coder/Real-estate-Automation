@@ -189,7 +189,8 @@ npx n8n</pre>
 <p>Everything lives in one workbook, <code>XYZ-Properties-CRM.xlsx</code>.</p>
 <ol>
 <li>Put the file in Google Drive → right-click → <b>Open with → Google Sheets</b> → <b>File → Save as Google Sheets</b>.</li>
-<li>Copy the ID out of the URL: <code>docs.google.com/spreadsheets/d/</code><b>THIS-PART</b><code>/edit</code>.</li>
+<li>Copy the ID out of the URL: <code>docs.google.com/spreadsheets/d/</code><b>THIS-PART</b><code>/edit#gid=0</code>.
+This is the <b>whole file's</b> ID, not a tab's. Ignore the <code>gid=</code> at the end — that identifies a single tab and is never used. Each node picks its tab by <i>name</i>, which is why renaming a tab breaks things.</li>
 <li>Open the <b>Projects</b> tab and replace the two shaded example rows with your real projects.</li>
 <li>Share the sheet with the Google account n8n will authenticate as, with <b>Editor</b> access.</li>
 </ol>
@@ -234,7 +235,7 @@ npx n8n</pre>
 <table>
 <tr><th style="width:52mm">Field</th><th>Example</th><th style="width:24mm">In</th></tr>
 <tr><td><code>COMPANY_NAME</code></td><td>XYZ Properties</td><td>all</td></tr>
-<tr><td><code>SHEET_ID</code></td><td>the ID from step 3</td><td>all</td></tr>
+<tr><td><code>SHEET_ID</code></td><td>the ID from step 3 &mdash; the whole spreadsheet file, not a tab</td><td>all</td></tr>
 <tr><td><code>WA_PHONE_NUMBER_ID</code></td><td>Meta → WhatsApp → API Setup</td><td>00, 05, 06</td></tr>
 <tr><td><code>CALENDAR_ID</code></td><td><code>primary</code> or the site-visit calendar</td><td>00</td></tr>
 <tr><td><code>SALES_MANAGER_EMAIL</code> / <code>_WHATSAPP</code></td><td>who receives the visit</td><td>all</td></tr>
