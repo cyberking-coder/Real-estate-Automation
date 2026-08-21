@@ -363,7 +363,7 @@
             "notes": "={{ $('Sanitise Template Variable').item.json.update_line }}"
           },
           "matchingColumns": [
-            "phone"
+            "lead_id"
           ]
         },
         "options": {}
@@ -380,7 +380,7 @@
       "maxTries": 3,
       "waitBetweenTries": 2000,
       "onError": "continueErrorOutput",
-      "notes": "THE node that stops a daily repeat. Retries 3 times; if it still fails the error output raises an alarm instead of failing silently."
+      "notes": "THE node that stops a daily repeat. Retries 3 times; if it still fails the error output raises an alarm instead of failing silently. Matched on lead_id, not phone: an all-digit phone is stored by Sheets as a number, so string matching fails and every run appends a duplicate."
     },
     {
       "parameters": {

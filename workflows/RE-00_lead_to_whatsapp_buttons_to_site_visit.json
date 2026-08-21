@@ -338,7 +338,7 @@
             "risk_flags": "={{ $json.risk_flags }}"
           },
           "matchingColumns": [
-            "phone"
+            "lead_id"
           ]
         },
         "options": {}
@@ -351,7 +351,8 @@
         60,
         -200
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "notes": "Matched on lead_id, not phone: an all-digit phone is stored by Sheets as a number, so string matching fails and every run appends a duplicate."
     },
     {
       "parameters": {
@@ -729,7 +730,7 @@
             "followup_count": 0
           },
           "matchingColumns": [
-            "phone"
+            "lead_id"
           ]
         },
         "options": {}
@@ -742,7 +743,8 @@
         280,
         260
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "notes": "Matched on lead_id, not phone: an all-digit phone is stored by Sheets as a number, so string matching fails and every run appends a duplicate."
     },
     {
       "parameters": {
@@ -1231,7 +1233,7 @@
             "last_action": "VISIT_BOOKED"
           },
           "matchingColumns": [
-            "phone"
+            "lead_id"
           ]
         },
         "options": {}
@@ -1244,7 +1246,8 @@
         1180,
         640
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "notes": "Matched on lead_id, not phone: an all-digit phone is stored by Sheets as a number, so string matching fails and every run appends a duplicate."
     },
     {
       "parameters": {
@@ -1692,7 +1695,7 @@
             "last_touch": "={{ $now.toISO() }}"
           },
           "matchingColumns": [
-            "phone"
+            "lead_id"
           ]
         },
         "options": {}
@@ -1705,7 +1708,8 @@
         1900,
         1160
       ],
-      "onError": "continueRegularOutput"
+      "onError": "continueRegularOutput",
+      "notes": "Matched on lead_id, not phone: an all-digit phone is stored by Sheets as a number, so string matching fails and every run appends a duplicate."
     },
     {
       "parameters": {
