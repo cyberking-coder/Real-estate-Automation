@@ -1,0 +1,86 @@
+{
+  "name": "DIAG Sheet Write Test",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## THROWAWAY DIAGNOSTIC\nEvery Sheets node in RE-00 is set to continue-on-error, so a rejected write still looks green. Nothing here suppresses anything.\n\n1. Import this\n2. Attach your Google Sheets credential to both Sheets nodes\n3. Hit 'Execute workflow'\n\nIt will either write a row named DIAGNOSTIC TEST to your Leads tab, or fail with the real reason in red.\n\nDelete this workflow afterwards.",
+        "height": 300,
+        "width": 400,
+        "color": 3
+      },
+      "id": "note",
+      "name": "Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-720, -160]
+    },
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Execute workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-680, 200]
+    },
+    {
+      "parameters": {
+        "documentId": { "__rl": true, "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "options": {}
+      },
+      "id": "read",
+      "name": "1 - Read Leads Tab",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [-460, 200],
+      "alwaysOutputData": true,
+      "notes": "Proves the credential, the document ID and the tab name. If this fails, the write was never going to work."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Report exactly what the tab looks like to n8n, then hand one test row to the writer.\nconst rows = $input.all().map(i => i.json).filter(r => r && Object.keys(r).length);\nconst headers = rows.length ? Object.keys(rows[0]) : [];\nconst now = new Date().toISOString();\nreturn [{ json: {\n  __diagnostic: {\n    data_rows_found: rows.length,\n    headers_seen: headers,\n    header_count: headers.length,\n    has_phone_column: headers.includes('phone'),\n    has_lead_id_column: headers.includes('lead_id'),\n    verdict: !headers.length\n      ? 'NO HEADERS. n8n sees no columns in row 1 of the Leads tab - appendOrUpdate has nothing to map to.'\n      : (headers.includes('phone')\n          ? 'Headers look right. If the write below still fails, read its red error.'\n          : 'The phone column is MISSING. appendOrUpdate matches on it, so the write cannot work.')\n  },\n  lead_id: 'DIAG' + Date.now(),\n  created_at: now,\n  name: 'DIAGNOSTIC TEST - delete me',\n  phone: '0000000000',\n  wa_id: '910000000000',\n  status: 'New',\n  source: 'diagnostic',\n  last_touch: now\n} }];"
+      },
+      "id": "inspect",
+      "name": "2 - Inspect Headers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-240, 200],
+      "notes": "Open this node's OUTPUT and read __diagnostic.verdict before anything else."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": { "__rl": true, "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68", "mode": "id" },
+        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "name": "={{ $json.name }}",
+            "phone": "={{ $json.phone }}",
+            "wa_id": "={{ $json.wa_id }}",
+            "status": "={{ $json.status }}",
+            "source": "={{ $json.source }}",
+            "last_touch": "={{ $json.last_touch }}"
+          },
+          "matchingColumns": ["phone"]
+        },
+        "options": {}
+      },
+      "id": "write",
+      "name": "3 - Write Test Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [-20, 200],
+      "notes": "Exactly the operation Save Lead to CRM performs, with NO onError setting - so any rejection shows in red instead of passing silently."
+    }
+  ],
+  "connections": {
+    "Execute workflow": { "main": [[{ "node": "1 - Read Leads Tab", "type": "main", "index": 0 }]] },
+    "1 - Read Leads Tab": { "main": [[{ "node": "2 - Inspect Headers", "type": "main", "index": 0 }]] },
+    "2 - Inspect Headers": { "main": [[{ "node": "3 - Write Test Row", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "pinData": {}
+}
