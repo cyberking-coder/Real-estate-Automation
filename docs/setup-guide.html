@@ -312,7 +312,31 @@ message, but there is no point paying for the model calls.</p></div>
 <li>Meta app → <b>WhatsApp → Configuration → Callback URL</b> = that URL. Verify token = the one in your n8n WhatsApp Trigger credential.</li>
 <li>Press <b>Verify and save</b>, then <b>subscribe to the <code>messages</code> field</b>. Nothing arrives without that subscription.</li>
 </ol>
-<div class="callout stop"><p><b>Verification fails?</b> Nine times out of ten the workflow is not Active, the tunnel is down, or the verify token does not match the credential exactly. Meta's error message is the same for all three.</p></div>
+<div class="callout stop"><p><b>Verification fails?</b> Nine times out of ten the workflow is not published, the trigger node is disabled (a disabled node registers no webhook, so the URL genuinely does not exist), the tunnel is down, or the verify token does not match. Meta's error is the same for all four. Reproduce Meta's check yourself &mdash; it is a plain GET:</p>
+<pre>curl -i "&lt;your callback url&gt;?hub.mode=subscribe&amp;hub.challenge=12345&amp;hub.verify_token=&lt;your token&gt;"</pre>
+<p><code>12345</code> back means n8n is fine. A 404 means the trigger is not registered.</p></div>
+
+<div class="callout stop">
+<h4>Verified but nothing ever arrives: check which app the WABA is subscribed to</h4>
+<p>This one costs people hours. Ticking <code>messages</code> configures your <i>app's</i> webhook, but events
+only flow if the <b>WhatsApp Business Account</b> is separately subscribed to that app. Out of the box a
+test WABA is often subscribed to Meta's own <code>WA DevX Webhook Events 1P App</code> instead &mdash; the one
+behind the test panel in the API Setup page &mdash; so everything verifies and nothing is delivered.</p>
+<pre>curl "https://graph.facebook.com/v21.0/<b>&lt;WABA_ID&gt;</b>/subscribed_apps?access_token=<b>&lt;TOKEN&gt;</b>"</pre>
+<p>If your app is not in that list, add it. The POST subscribes whichever app owns the token:</p>
+<pre>curl -X POST "https://graph.facebook.com/v21.0/<b>&lt;WABA_ID&gt;</b>/subscribed_apps?access_token=<b>&lt;TOKEN&gt;</b>"</pre>
+<p>It is the <b>WhatsApp Business Account ID</b>, not the Phone number ID &mdash; they sit next to each other
+and look alike. Using the wrong one gives <i>"Tried accessing nonexisting field (subscribed_apps)"</i>. To
+read the WABA id straight off your token:
+<code>GET /v21.0/debug_token?input_token=TOKEN&amp;access_token=TOKEN</code> &rarr; <code>granular_scopes</code>
+&rarr; <code>target_ids</code>.</p>
+</div>
+
+<div class="callout"><p><b>The fastest way to see what Meta is actually doing</b> is ngrok's request inspector at
+<code>http://127.0.0.1:4040</code>. Filter it to <code>whatsapp</code> and tap a button: no request means Meta is
+not sending, a 401 or 403 means n8n rejected the signature (wrong App Secret), and a 200 means the event
+landed and the execution is in n8n's <b>Executions</b> tab. Browse n8n at <code>localhost:5678</code> rather
+than through the tunnel, or its own UI traffic buries everything.</p></div>
 </div></div>
 </div>
 

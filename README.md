@@ -155,6 +155,17 @@ RE-05 has its own `Config` node with the same shape plus the cadence numbers.
    `localhost:5678` for your ngrok host.
 3. Meta app → WhatsApp → Configuration → **Callback URL** = that URL, verify token = the one in your
    n8n WhatsApp Trigger credential, then **subscribe to the `messages` field**.
+4. **Subscribe the WABA to your app** — separate from step 3, and the usual reason a verified webhook
+   still delivers nothing. A test WABA often starts out subscribed to Meta's own
+   `WA DevX Webhook Events 1P App` instead:
+
+   ```bash
+   curl "https://graph.facebook.com/v21.0/<WABA_ID>/subscribed_apps?access_token=<TOKEN>"      # check
+   curl -X POST "https://graph.facebook.com/v21.0/<WABA_ID>/subscribed_apps?access_token=<TOKEN>"  # fix
+   ```
+
+   Use the **WhatsApp Business Account ID**, not the Phone number ID. Debug what Meta is really doing with
+   ngrok's inspector at `http://127.0.0.1:4040`, filtered to `whatsapp`.
 
 ## 6. The one Meta rule you cannot code around
 
