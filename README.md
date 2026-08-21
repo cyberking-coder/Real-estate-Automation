@@ -182,6 +182,26 @@ RE-05 needs a second approved template, `followup_update`:
 Claude writes `{{3}}` only. The template itself never changes, stays approved, and its buttons carry
 the same payloads as RE-00 — so a tap on a follow-up drops the buyer straight back into the button flow.
 
+### Starting on a Meta test number, before any template exists
+
+Templates are not needed to test. A test number sends free-form messages — the three-button menu
+included — to anyone who has messaged you in the last 24 hours.
+
+1. Meta → **WhatsApp → API Setup** → the **To** field → *Manage phone number list* → add your number and
+   confirm the code. A test number can only message numbers on that list (max 5); anything else fails
+   with `131030`.
+2. From your phone, WhatsApp anything to the test number in the **From** dropdown — that opens the window.
+3. RE-00 → **Config** → `USE_APPROVED_TEMPLATE` = `false`. Save, publish.
+4. Submit the lead form. The welcome arrives with all three buttons.
+5. Drive the button branches through `/webhook/simulate` until the inbound webhook is wired.
+
+> **The API Setup token expires after 24 hours.** Tomorrow every send fails with error `190` and looks
+> like a new bug. Create a System User in Business Settings for a permanent token.
+
+> **Leave RE-04 and RE-05 unpublished until templates exist** — their follow-ups are template-only by
+> design, so every send would fail. Harmless (the touch counter only advances when Meta accepts), but it
+> burns model calls for nothing.
+
 Set `USE_APPROVED_TEMPLATE` to `false` only while testing with a number that has messaged your business
 number in the last 24 hours — then the welcome goes out as a free-form interactive message with the same
 three buttons and no approval needed.

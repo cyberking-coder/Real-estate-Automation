@@ -279,6 +279,29 @@ This is the <b>whole file's</b> ID, not a tab's. Ignore the <code>gid=</code> at
 
 <div class="callout warn"><p><b>Button order is not cosmetic.</b> The workflows send payloads against button <i>index</i> 0, 1 and 2 — <code>VIEW_DETAILS</code>, <code>DOWNLOAD_BROCHURE</code>, <code>BOOK_VISIT</code>. Reorder the buttons in Meta and taps will trigger the wrong branch.</p></div>
 <div class="callout"><p>Claude writes only <code>{{3}}</code> in the follow-up. The template text itself never changes, so it stays approved forever while every message still says something new.</p></div>
+
+<h4 style="margin-top:5mm">Starting on a Meta test number, before any template exists</h4>
+<p>This is where every implementation begins, and templates are not needed for it. A test number can send
+free-form messages &mdash; including the three-button menu &mdash; to anyone who has messaged you in the
+last 24 hours.</p>
+<table>
+<tr><th style="width:8mm">#</th><th>Step</th></tr>
+<tr><td>1</td><td>Meta &rarr; <b>WhatsApp &rarr; API Setup</b> &rarr; the <b>To</b> field &rarr; <i>Manage phone number list</i>. Add your own number and confirm the code. A test number can only message numbers on this list (max 5); anything else fails with <code>131030</code>.</td></tr>
+<tr><td>2</td><td>From your phone, WhatsApp any message to the test number in the <b>From</b> dropdown. That opens the 24-hour window.</td></tr>
+<tr><td>3</td><td>RE-00 &rarr; <b>Config</b> &rarr; set <code>USE_APPROVED_TEMPLATE</code> to <code>false</code>. Save, publish.</td></tr>
+<tr><td>4</td><td>Submit the lead form. The welcome arrives with all three buttons, no approval involved.</td></tr>
+<tr><td>5</td><td>Drive the button branches through <code>/webhook/simulate</code> until the inbound webhook is wired.</td></tr>
+</table>
+<div class="callout stop">
+<h4>The test-number token expires after 24 hours</h4>
+<p>The token on the API Setup page is temporary. Tomorrow every send fails with error <code>190</code> and
+it will look like a fresh bug. For anything longer than a day, create a System User in Business Settings
+and generate a permanent token.</p>
+</div>
+<div class="callout warn"><p><b>Leave RE-04 and RE-05 unpublished until templates exist.</b> Their follow-ups are
+template-only by design &mdash; a lead who has not replied is outside the window &mdash; so every send
+would fail. Nothing breaks if they do run, since the touch counter only advances when Meta accepts the
+message, but there is no point paying for the model calls.</p></div>
 </div></div>
 
 <div class="step"><div class="stepno">7</div><div>
