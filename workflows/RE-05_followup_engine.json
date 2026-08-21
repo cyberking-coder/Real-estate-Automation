@@ -1,0 +1,591 @@
+{
+  "name": "RE-05 Follow-Up Engine (grade-based cadence)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## ONE SWEEP A DAY, 10:00 IST\nReads the whole pipeline, works out who is overdue by grade, writes each buyer a follow-up with a genuinely new reason to reply, sends it as an approved template, then writes the touch back.\n\nA lead due at 2pm waits until 10am tomorrow. That is deliberate: all outbound lands in one predictable window instead of pinging buyers at random hours, and one failed cron delays messages by a day rather than losing them.",
+        "height": 300,
+        "width": 440,
+        "color": 4
+      },
+      "id": "note-sweep",
+      "name": "Note - Daily Sweep",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1180,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## THE CADENCE\nHOT every 3 days, WARM every 5, COLD every 21, JUNK never.\nHard stop at 6 automated follow-ups.\n\n6 touches is a safety stop, not a target: WARM spans about a month, COLD about four. Most leads book, reply or get marked Lost long before it.\n\nSkipped entirely: Booked, Lost, Dropped — and Engaged while the conversation is still live (last inbound under CONVERSATION_HOLD_HOURS). Nothing is more embarrassing than a scheduled nudge landing on top of a live chat.",
+        "height": 320,
+        "width": 440,
+        "color": 5
+      },
+      "id": "note-cadence",
+      "name": "Note - Cadence",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## WHY THE WRITE-BACK MATTERS\n`Update Touch Count` sets last_touch to now, so tomorrow's sweep sees this lead as freshly touched and skips it until the interval passes again.\n\nIf it fails silently the same lead gets messaged EVERY DAY — worse than the workflow not running at all. So it retries 3 times and, if it still fails, the error output alerts the sales manager instead of being swallowed.",
+        "height": 300,
+        "width": 420,
+        "color": 3
+      },
+      "id": "note-writeback",
+      "name": "Note - Write-Back",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        700,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 4 * * *"
+            }
+          ]
+        },
+        "notes": "04:30 UTC = 10:00 IST"
+      },
+      "id": "cron-morning",
+      "name": "Daily 10am IST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1140,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "COMPANY_NAME",
+              "value": "XYZ Properties",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "SHEET_ID",
+              "value": "PUT_YOUR_GOOGLE_SHEET_ID_HERE",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "WA_PHONE_NUMBER_ID",
+              "value": "PUT_YOUR_WHATSAPP_PHONE_NUMBER_ID",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "WA_API_VERSION",
+              "value": "v21.0",
+              "type": "string"
+            },
+            {
+              "id": "f5",
+              "name": "FOLLOWUP_TEMPLATE_NAME",
+              "value": "followup_update",
+              "type": "string"
+            },
+            {
+              "id": "f6",
+              "name": "FOLLOWUP_TEMPLATE_LANG",
+              "value": "en",
+              "type": "string"
+            },
+            {
+              "id": "f7",
+              "name": "CLAUDE_MODEL",
+              "value": "claude-opus-5",
+              "type": "string"
+            },
+            {
+              "id": "f8",
+              "name": "SALES_MANAGER_EMAIL",
+              "value": "sales.manager@example.com",
+              "type": "string"
+            },
+            {
+              "id": "f9",
+              "name": "TIMEZONE",
+              "value": "Asia/Kolkata",
+              "type": "string"
+            },
+            {
+              "id": "f10",
+              "name": "CADENCE_HOT_DAYS",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "f11",
+              "name": "CADENCE_WARM_DAYS",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "f12",
+              "name": "CADENCE_COLD_DAYS",
+              "value": 21,
+              "type": "number"
+            },
+            {
+              "id": "f13",
+              "name": "MAX_FOLLOWUPS",
+              "value": 6,
+              "type": "number"
+            },
+            {
+              "id": "f14",
+              "name": "CONVERSATION_HOLD_HOURS",
+              "value": 72,
+              "type": "number"
+            },
+            {
+              "id": "f15",
+              "name": "DAILY_SEND_CAP",
+              "value": 200,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "cfg",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -920,
+        180
+      ],
+      "notes": "Tune the cadence here and review it after a month of real data. These numbers are a starting point, not a law."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "sheets-read",
+      "name": "Read Full Pipeline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -700,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// The cadence maths. For each lead: days between last_touch and now, compared against the\n// grade's interval. A WARM lead touched 10 days ago is overdue (5-day cadence); one touched\n// yesterday is not.\nconst cfg = $('Config').first().json;\nconst CADENCE = {\n  HOT: Number(cfg.CADENCE_HOT_DAYS),\n  WARM: Number(cfg.CADENCE_WARM_DAYS),\n  COLD: Number(cfg.CADENCE_COLD_DAYS),\n  JUNK: 999\n};\nconst MAX_FOLLOWUPS = Number(cfg.MAX_FOLLOWUPS);\nconst HOLD_HOURS = Number(cfg.CONVERSATION_HOLD_HOURS);\nconst CAP = Number(cfg.DAILY_SEND_CAP);\nconst STOPPED = ['Booked', 'Lost', 'Dropped'];\nconst now = Date.now();\nconst ms = (v) => new Date(v || 0).getTime() || 0;\n\nconst due = [];\nconst skipped = { stopped: 0, in_conversation: 0, capped: 0, not_due: 0, no_whatsapp: 0, junk: 0 };\n\nfor (const l of $input.all().map(i => i.json)) {\n  const status = String(l.status || 'New').trim();\n\n  // 1. Finished leads are never touched again.\n  if (STOPPED.includes(status)) { skipped.stopped++; continue; }\n\n  // 2. Never talk over a live conversation. RE-00 sets status Engaged the moment a buyer\n  //    replies, so a scheduled follow-up would otherwise land on top of a live chat.\n  //    Once they have gone quiet for HOLD_HOURS the conversation is over and nurture resumes.\n  if (status === 'Engaged') {\n    const quietHours = (now - ms(l.last_inbound_at || l.last_touch)) / 3600000;\n    if (quietHours < HOLD_HOURS) { skipped.in_conversation++; continue; }\n  }\n\n  // 3. The hard stop. followup_count counts AUTOMATED follow-ups only - not button taps -\n  //    so an engaged buyer who taps six buttons is not silently locked out of nurture.\n  const sent = Number(l.followup_count || 0);\n  if (sent >= MAX_FOLLOWUPS) { skipped.capped++; continue; }\n\n  // 4. Cadence by grade.\n  const grade = String(l.grade || 'WARM').toUpperCase();\n  if (grade === 'JUNK') { skipped.junk++; continue; }\n  const interval = CADENCE[grade] ?? CADENCE.WARM;\n  const days = (now - ms(l.last_touch || l.created_at)) / 86400000;\n  if (days < interval) { skipped.not_due++; continue; }\n\n  const wa = String(l.wa_id || '').replace(/\\D/g, '');\n  if (wa.length < 11) { skipped.no_whatsapp++; continue; }\n\n  due.push({\n    ...l,\n    wa_id: wa,\n    grade,\n    cadence_days: interval,\n    days_since_touch: Math.floor(days),\n    followup_number: sent + 1,\n    max_followups: MAX_FOLLOWUPS,\n    resumed_after_conversation: status === 'Engaged'\n  });\n}\n\n// Oldest contact first, so nobody starves if the daily cap bites.\ndue.sort((a, b) => b.days_since_touch - a.days_since_touch);\nconst send = due.slice(0, CAP);\nskipped.over_daily_cap = due.length - send.length;\nreturn send.map(l => ({ json: { ...l, sweep: { due: due.length, sending: send.length, skipped } } }));"
+      },
+      "id": "fn-due",
+      "name": "Find Follow-Ups Due",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        180
+      ],
+      "notes": "Returns nothing when nobody is due, so the rest of the workflow simply does not run. No empty emails, no wasted API calls."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "anthropic-beta",
+              "value": "server-side-fallback-2026-07-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('Config').first().json.CLAUDE_MODEL,\n  max_tokens: 2000,\n  fallbacks: 'default',\n  output_config: {\n    effort: 'medium',\n    format: { type: 'json_schema', schema: {\n      type: 'object',\n      properties: {\n        update_line: { type: 'string' },\n        internal_note: { type: 'string' }\n      },\n      required: ['update_line', 'internal_note'],\n      additionalProperties: false\n    } }\n  },\n  system: 'You write the variable part of a WhatsApp follow-up for an Indian real estate developer.\\n\\nThe fixed approved template reads: \"Hi {name}, an update on {project}: {update_line}\" followed by View Details / Download Brochure / Schedule Visit buttons. You write update_line only.\\n\\nHard rules for update_line:\\n- ONE single line. No line breaks, no tabs, no bullet points, no emoji. Under 240 characters.\\n- It must carry ONE genuinely new reason to reply: a new unit or floor released, a price or possession update, a bank pre-approval or subvention offer, a weekend open house, a construction milestone, or a specific useful question.\\n- Never write \"just following up\", \"gentle reminder\", \"checking in\", or \"did you get my message\".\\n- Escalate VALUE as the follow-up number rises, never pressure. Follow-up 5 should be the most useful message, not the most desperate one.\\n- Do not invent a hard fact you were not given. Prefer a real question or a soft, honest offer over a fabricated price cut or a fake deadline.\\n- Match the grade: HOT gets specifics and urgency, WARM gets useful information, COLD gets low-commitment value.\\n\\ninternal_note is one short line for the sales manager explaining the angle you chose.',\n  messages: [ { role: 'user', content: 'Follow-up ' + $json.followup_number + ' of ' + $json.max_followups + '\\nName: ' + $json.name + '\\nProject: ' + $json.project + '\\nGrade: ' + $json.grade + '\\nScore: ' + ($json.score || 'n/a') + '\\nBudget: ' + ($json.budget || 'unknown') + '\\nConfiguration: ' + ($json.configuration || 'unknown') + '\\nTimeline: ' + ($json.timeline || 'unknown') + '\\nSource: ' + $json.source + '\\nDays since last contact: ' + $json.days_since_touch + '\\nLast action they took: ' + ($json.last_action || 'none') + '\\nOriginal enquiry: ' + ($json.message || 'none') + '\\nWhat we know: ' + ($json.ai_summary || 'nothing yet') + '\\nSuggested next action: ' + ($json.next_action || 'none') } ]\n}) }}",
+        "options": {
+          "timeout": 60000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 1000
+            }
+          }
+        }
+      },
+      "id": "ai-followup",
+      "name": "Claude - Write Follow-Up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -260,
+        180
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "A fixed template would be simpler, but follow-up 5 saying the same thing as follow-up 2 is exactly why nurture sequences get muted. The approved template never changes - only the variable inside it does."
+    },
+    {
+      "parameters": {
+        "jsCode": "// WhatsApp template variables cannot contain newlines, tabs or 4+ consecutive spaces, and\n// Meta rejects the whole send if they do. Sanitise here rather than trusting the model.\nconst lead = $('Find Follow-Ups Due').all()[$itemIndex].json;\nconst blocks = Array.isArray($json.content) ? $json.content : [];\nconst text = blocks.filter(b => b.type === 'text').map(b => b.text).join('').trim();\nlet ai = null;\nif ($json.stop_reason !== 'refusal' && text) { try { ai = JSON.parse(text); } catch (e) { ai = null; } }\n\nconst clean = (s) => String(s || '')\n  .replace(/[\\r\\n\\t]+/g, ' ')\n  .replace(/\\s{4,}/g, ' ')\n  .replace(/\\s+/g, ' ')\n  .trim()\n  .slice(0, 240)\n  .trim();\n\nlet line = clean(ai && ai.update_line);\nlet fallback = false;\nif (line.length < 15) {\n  // Never send an empty variable - Meta would reject it and the touch would be wasted.\n  line = clean('a few units in your configuration are still open this month. Want me to send the current availability and payment plan?');\n  fallback = true;\n}\nreturn { json: {\n  ...lead,\n  update_line: line,\n  internal_note: clean(ai && ai.internal_note) || (fallback ? 'Generic line used - model output unusable' : ''),\n  used_fallback_copy: fallback\n} };",
+        "mode": "runOnceForEachItem"
+      },
+      "id": "fn-parse",
+      "name": "Sanitise Template Variable",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -40,
+        180
+      ],
+      "notes": "Runs once per item so each lead keeps its own copy."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $json.wa_id,\n  type: 'template',\n  template: {\n    name: $('Config').first().json.FOLLOWUP_TEMPLATE_NAME,\n    language: { code: $('Config').first().json.FOLLOWUP_TEMPLATE_LANG },\n    components: [\n      { type: 'body', parameters: [\n        { type: 'text', text: $json.name },\n        { type: 'text', text: $json.project },\n        { type: 'text', text: $json.update_line }\n      ] },\n      { type: 'button', sub_type: 'quick_reply', index: '0', parameters: [ { type: 'payload', payload: 'VIEW_DETAILS' } ] },\n      { type: 'button', sub_type: 'quick_reply', index: '1', parameters: [ { type: 'payload', payload: 'DOWNLOAD_BROCHURE' } ] },\n      { type: 'button', sub_type: 'quick_reply', index: '2', parameters: [ { type: 'payload', payload: 'BOOK_VISIT' } ] }\n    ]\n  }\n}) }}",
+        "options": {
+          "timeout": 20000,
+          "batching": {
+            "batch": {
+              "batchSize": 10,
+              "batchInterval": 1000
+            }
+          }
+        }
+      },
+      "id": "wa-followup",
+      "name": "WA - Send Follow-Up Template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        180,
+        180
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "A lead who has not replied is outside the 24h window, so this must be an approved template. The buttons carry the same payloads as RE-00, so a tap drops the buyer straight back into the button flow."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sent",
+              "leftValue": "={{ $json.messages ? $json.messages[0].id : '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-sent",
+      "name": "Actually Delivered?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        180
+      ],
+      "notes": "Only burn a touch if Meta accepted the message. A rejected send must not cost the lead one of its six follow-ups."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Sanitise Template Variable').item.json.phone }}",
+            "lead_id": "={{ $('Sanitise Template Variable').item.json.lead_id }}",
+            "status": "Nurturing",
+            "last_touch": "={{ $now.toISO() }}",
+            "last_followup_at": "={{ $now.toISO() }}",
+            "followup_count": "={{ $('Sanitise Template Variable').item.json.followup_number }}",
+            "last_action": "={{ 'FOLLOWUP_' + $('Sanitise Template Variable').item.json.followup_number }}",
+            "notes": "={{ $('Sanitise Template Variable').item.json.update_line }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-touch",
+      "name": "Update Touch Count",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        620,
+        100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "notes": "THE node that stops a daily repeat. Retries 3 times; if it still fails the error output raises an alarm instead of failing silently."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Messages",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "lead_id": "={{ $('Sanitise Template Variable').item.json.lead_id }}",
+            "phone": "={{ $('Sanitise Template Variable').item.json.wa_id }}",
+            "direction": "outbound",
+            "type": "followup_template",
+            "action": "={{ 'FOLLOWUP_' + $('Sanitise Template Variable').item.json.followup_number + ' (' + $('Sanitise Template Variable').item.json.grade + ')' }}",
+            "body": "={{ $('Sanitise Template Variable').item.json.update_line }}",
+            "wa_message_id": "={{ $('WA - Send Follow-Up Template').item.json.messages ? $('WA - Send Follow-Up Template').item.json.messages[0].id : '' }}",
+            "status": "sent"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "sheets-log",
+      "name": "Log Follow-Up",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        840,
+        100
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=ACTION NEEDED - follow-up CRM write-back failed for {{ $('Sanitise Template Variable').item.json.name }}",
+        "message": "=<div style=\"font-family:system-ui,sans-serif\">\n<h2 style=\"margin:0 0 4px;color:#B3261E\">Follow-up sent but not recorded</h2>\n<p>The WhatsApp follow-up went out, but writing <code>last_touch</code> back to the Leads sheet failed after 3 attempts. Until that row is fixed by hand, <b>this lead will be messaged again every morning</b>.</p>\n<table cellpadding=\"6\" style=\"border-collapse:collapse;font-size:14px\">\n<tr><td><b>Lead</b></td><td>{{ $('Sanitise Template Variable').item.json.name }}</td></tr>\n<tr><td><b>Phone</b></td><td>+{{ $('Sanitise Template Variable').item.json.wa_id }}</td></tr>\n<tr><td><b>Lead ID</b></td><td>{{ $('Sanitise Template Variable').item.json.lead_id }}</td></tr>\n<tr><td><b>Follow-up</b></td><td>#{{ $('Sanitise Template Variable').item.json.followup_number }}</td></tr>\n<tr><td><b>Error</b></td><td>{{ $json.error }}</td></tr>\n</table>\n<p><b>Fix:</b> open the Leads sheet, set <code>last_touch</code> to now and <code>followup_count</code> to {{ $('Sanitise Template Variable').item.json.followup_number }} for that row.</p>\n</div>",
+        "options": {}
+      },
+      "id": "gmail-writeback-fail",
+      "name": "Alert - CRM Write-Back Failed",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        620,
+        320
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=Follow-ups sent this morning - {{ $('Find Follow-Ups Due').all().length }} leads",
+        "message": "=<div style=\"font-family:system-ui,sans-serif;max-width:640px\">\n<h2 style=\"margin:0\">Follow-up sweep</h2>\n<p style=\"color:#666;margin:2px 0 20px\">{{ $now.setZone($('Config').first().json.TIMEZONE).toFormat('cccc dd LLL yyyy') }} &middot; HOT every {{ $('Config').first().json.CADENCE_HOT_DAYS }}d, WARM every {{ $('Config').first().json.CADENCE_WARM_DAYS }}d, COLD every {{ $('Config').first().json.CADENCE_COLD_DAYS }}d, stop at {{ $('Config').first().json.MAX_FOLLOWUPS }}</p>\n<p><b>{{ $('Find Follow-Ups Due').all().length }}</b> messaged.\nSkipped: {{ $('Find Follow-Ups Due').first().json.sweep.skipped.not_due }} not due yet,\n{{ $('Find Follow-Ups Due').first().json.sweep.skipped.in_conversation }} in a live conversation,\n{{ $('Find Follow-Ups Due').first().json.sweep.skipped.capped }} at the {{ $('Config').first().json.MAX_FOLLOWUPS }}-touch cap,\n{{ $('Find Follow-Ups Due').first().json.sweep.skipped.stopped }} closed,\n{{ $('Find Follow-Ups Due').first().json.sweep.skipped.junk }} junk,\n{{ $('Find Follow-Ups Due').first().json.sweep.skipped.no_whatsapp }} with no WhatsApp number,\n{{ $('Find Follow-Ups Due').first().json.sweep.skipped.over_daily_cap }} held back by the daily cap.</p>\n<table cellpadding=\"8\" style=\"border-collapse:collapse;width:100%;font-size:13px;border:1px solid #ddd\">\n<tr style=\"background:#EEF1F6\"><th align=\"left\">Lead</th><th>Grade</th><th>#</th><th>Quiet</th><th align=\"left\">What we said</th></tr>\n{{ $('Sanitise Template Variable').all().map(i => '<tr><td>' + i.json.name + '</td><td align=\"center\">' + i.json.grade + '</td><td align=\"center\">' + i.json.followup_number + '/' + i.json.max_followups + '</td><td align=\"center\">' + i.json.days_since_touch + 'd</td><td>' + i.json.update_line + '</td></tr>').join('') }}\n</table>\n<p style=\"color:#666;font-size:12px;margin-top:24px\">Cadence is tunable in the Config node. Worth reviewing after a month of real data.</p>\n</div>",
+        "options": {}
+      },
+      "id": "gmail-summary",
+      "name": "Email Sweep Summary",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1060,
+        100
+      ],
+      "executeOnce": true,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Daily 10am IST": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Read Full Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Full Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Find Follow-Ups Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Follow-Ups Due": {
+      "main": [
+        [
+          {
+            "node": "Claude - Write Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude - Write Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Sanitise Template Variable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitise Template Variable": {
+      "main": [
+        [
+          {
+            "node": "WA - Send Follow-Up Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send Follow-Up Template": {
+      "main": [
+        [
+          {
+            "node": "Actually Delivered?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actually Delivered?": {
+      "main": [
+        [
+          {
+            "node": "Update Touch Count",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Update Touch Count": {
+      "main": [
+        [
+          {
+            "node": "Log Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert - CRM Write-Back Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Email Sweep Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

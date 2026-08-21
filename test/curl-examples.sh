@@ -38,3 +38,7 @@ curl -sS -X POST "$BASE/simulate" -H 'content-type: application/json' \
 echo "--- 6. free text (falls back to the main menu)"
 curl -sS -X POST "$BASE/simulate" -H 'content-type: application/json' \
   -d "{\"phone\":\"$PHONE\",\"text\":\"kya price hai?\"}"; echo
+
+echo "--- 7. free text that is NOT a keyword (goes to the AI agent, then re-grades the lead)"
+curl -sS -X POST "$BASE/simulate" -H 'content-type: application/json' \
+  -d "{\"phone\":\"$PHONE\",\"text\":\"is the clubhouse ready and how far is the metro?\"}"; echo

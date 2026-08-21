@@ -207,6 +207,18 @@
               "name": "BOOKING_LEAD_HOURS",
               "value": 3,
               "type": "number"
+            },
+            {
+              "id": "c18",
+              "name": "CLAUDE_MODEL",
+              "value": "claude-opus-5",
+              "type": "string"
+            },
+            {
+              "id": "c19",
+              "name": "CONVERSATION_HOLD_HOURS",
+              "value": 72,
+              "type": "number"
             }
           ]
         },
@@ -315,7 +327,15 @@
             "owner": "={{ $json.owner }}",
             "touch_count": "={{ $json.touch_count }}",
             "last_touch": "={{ $json.last_touch }}",
-            "last_action": "={{ $json.last_action }}"
+            "last_action": "={{ $json.last_action }}",
+            "grade": "={{ $json.grade }}",
+            "score": "={{ $json.score }}",
+            "is_broker": "={{ $json.is_broker }}",
+            "intent_signals": "={{ $json.intent_signals }}",
+            "next_action": "={{ $json.next_action }}",
+            "ai_summary": "={{ $json.ai_summary }}",
+            "followup_count": "={{ $json.followup_count }}",
+            "risk_flags": "={{ $json.risk_flags }}"
           },
           "matchingColumns": [
             "phone"
@@ -328,7 +348,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        -380,
+        60,
         -200
       ],
       "onError": "continueRegularOutput"
@@ -360,7 +380,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -160,
+        280,
         -200
       ],
       "notes": "A lead who filled a form has NOT messaged us, so the 24h service window is closed and Meta only allows an approved template. Set USE_APPROVED_TEMPLATE=false only for test numbers already in a 24h window."
@@ -384,7 +404,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        60,
+        500,
         -320
       ],
       "onError": "continueRegularOutput",
@@ -409,7 +429,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        60,
+        500,
         -80
       ],
       "onError": "continueRegularOutput"
@@ -449,7 +469,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        300,
+        740,
         -200
       ],
       "onError": "continueRegularOutput"
@@ -457,8 +477,8 @@
     {
       "parameters": {
         "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
-        "subject": "=New lead - {{ $('Flag Duplicate').first().json.name }} - {{ $('Flag Duplicate').first().json.project }}",
-        "message": "=<div style=\"font-family:system-ui,sans-serif\">\n<h2 style=\"margin:0 0 4px\">{{ $('Flag Duplicate').first().json.name }}</h2>\n<p style=\"margin:0 0 16px;color:#555\">{{ $('Flag Duplicate').first().json.is_returning ? 'Returning enquiry' : 'First-time enquiry' }} &middot; WhatsApp menu already delivered</p>\n<table cellpadding=\"6\" style=\"border-collapse:collapse;font-size:14px\">\n<tr><td><b>Phone</b></td><td>{{ $('Flag Duplicate').first().json.phone_e164 }}</td></tr>\n<tr><td><b>Email</b></td><td>{{ $('Flag Duplicate').first().json.email }}</td></tr>\n<tr><td><b>Project</b></td><td>{{ $('Flag Duplicate').first().json.project }}</td></tr>\n<tr><td><b>Source</b></td><td>{{ $('Flag Duplicate').first().json.source }} / {{ $('Flag Duplicate').first().json.campaign }}</td></tr>\n<tr><td><b>Budget</b></td><td>{{ $('Flag Duplicate').first().json.budget }}</td></tr>\n<tr><td><b>Config</b></td><td>{{ $('Flag Duplicate').first().json.configuration }}</td></tr>\n<tr><td><b>Timeline</b></td><td>{{ $('Flag Duplicate').first().json.timeline }}</td></tr>\n<tr><td><b>Message</b></td><td>{{ $('Flag Duplicate').first().json.message }}</td></tr>\n</table>\n</div>",
+        "subject": "=[{{ $('Merge AI Grade').first().json.grade }} {{ $('Merge AI Grade').first().json.score }}/100] New lead - {{ $('Flag Duplicate').first().json.name }} - {{ $('Flag Duplicate').first().json.project }}",
+        "message": "=<div style=\"font-family:system-ui,sans-serif\">\n<h2 style=\"margin:0 0 4px\">{{ $('Flag Duplicate').first().json.name }}</h2>\n<p style=\"margin:0 0 16px;color:#555\">{{ $('Flag Duplicate').first().json.is_returning ? 'Returning enquiry' : 'First-time enquiry' }} &middot; WhatsApp menu already delivered</p>\n<table cellpadding=\"6\" style=\"border-collapse:collapse;font-size:14px\">\n<tr><td><b>Phone</b></td><td>{{ $('Flag Duplicate').first().json.phone_e164 }}</td></tr>\n<tr><td><b>Email</b></td><td>{{ $('Flag Duplicate').first().json.email }}</td></tr>\n<tr><td><b>Project</b></td><td>{{ $('Flag Duplicate').first().json.project }}</td></tr>\n<tr><td><b>Source</b></td><td>{{ $('Flag Duplicate').first().json.source }} / {{ $('Flag Duplicate').first().json.campaign }}</td></tr>\n<tr><td><b>Budget</b></td><td>{{ $('Flag Duplicate').first().json.budget }}</td></tr>\n<tr><td><b>Config</b></td><td>{{ $('Flag Duplicate').first().json.configuration }}</td></tr>\n<tr><td><b>Timeline</b></td><td>{{ $('Flag Duplicate').first().json.timeline }}</td></tr>\n<tr><td><b>Message</b></td><td>{{ $('Flag Duplicate').first().json.message }}</td></tr>\n<tr><td><b>Grade</b></td><td>{{ $('Merge AI Grade').first().json.grade }} &middot; {{ $('Merge AI Grade').first().json.score }}/100{{ $('Merge AI Grade').first().json.is_broker ? ' &middot; looks like a broker' : '' }}{{ $('Merge AI Grade').first().json.is_timepass ? ' &middot; timepass' : '' }}</td></tr>\n<tr><td><b>Signals</b></td><td>{{ $('Merge AI Grade').first().json.intent_signals }}</td></tr>\n<tr><td><b>Flags</b></td><td>{{ $('Merge AI Grade').first().json.risk_flags }}</td></tr>\n</table>\n<p style=\"background:#f4f4f4;padding:12px;border-left:3px solid #0E7C66\"><b>Next action:</b> {{ $('Merge AI Grade').first().json.next_action }}<br>{{ $('Merge AI Grade').first().json.ai_summary }}</p>\n</div>",
         "options": {}
       },
       "id": "gmail-newlead",
@@ -466,7 +486,7 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        520,
+        960,
         -200
       ],
       "onError": "continueRegularOutput"
@@ -474,7 +494,7 @@
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true, lead_id: $('Flag Duplicate').first().json.lead_id, name: $('Flag Duplicate').first().json.name, phone: $('Flag Duplicate').first().json.phone_e164, project: $('Flag Duplicate').first().json.project, returning_lead: $('Flag Duplicate').first().json.is_returning, whatsapp_message_id: $('Log Welcome Sent').first().json.wa_message_id || '' }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: true, lead_id: $('Flag Duplicate').first().json.lead_id, name: $('Flag Duplicate').first().json.name, phone: $('Flag Duplicate').first().json.phone_e164, project: $('Flag Duplicate').first().json.project, grade: $('Merge AI Grade').first().json.grade, score: $('Merge AI Grade').first().json.score, next_action: $('Merge AI Grade').first().json.next_action, returning_lead: $('Flag Duplicate').first().json.is_returning, whatsapp_message_id: $('Log Welcome Sent').first().json.wa_message_id || '' }) }}",
         "options": {}
       },
       "id": "respond-lead",
@@ -482,7 +502,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [
-        740,
+        1180,
         -200
       ]
     },
@@ -695,7 +715,9 @@
             "last_touch": "={{ $now.toISO() }}",
             "last_action": "={{ $('Build Context').first().json.action }}",
             "details_sent": "={{ $('Build Context').first().json.details_sent }}",
-            "brochure_sent": "={{ $('Build Context').first().json.brochure_sent }}"
+            "brochure_sent": "={{ $('Build Context').first().json.brochure_sent }}",
+            "last_inbound_at": "={{ $now.toISO() }}",
+            "followup_count": 0
           },
           "matchingColumns": [
             "phone"
@@ -1345,6 +1367,352 @@
         300
       ],
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "anthropic-beta",
+              "value": "server-side-fallback-2026-07-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('Config').first().json.CLAUDE_MODEL,\n  max_tokens: 3000,\n  fallbacks: 'default',\n  output_config: {\n    effort: 'low',\n    format: { type: 'json_schema', schema: {\n      type: 'object',\n      properties: {\n        score: { type: 'integer' },\n        grade: { type: 'string', enum: ['HOT', 'WARM', 'COLD', 'JUNK'] },\n        is_timepass: { type: 'boolean' },\n        is_broker: { type: 'boolean' },\n        budget_band: { type: 'string' },\n        configuration: { type: 'string', enum: ['1BHK', '2BHK', '3BHK', '4BHK+', 'Unknown'] },\n        timeline: { type: 'string', enum: ['0-3m', '3-6m', '6-12m', '12m+', 'Unknown'] },\n        funding: { type: 'string', enum: ['Loan', 'Self', 'Unknown'] },\n        intent_signals: { type: 'array', items: { type: 'string' } },\n        risk_flags: { type: 'array', items: { type: 'string' } },\n        next_action: { type: 'string' },\n        summary: { type: 'string' }\n      },\n      required: ['score','grade','is_timepass','is_broker','budget_band','configuration','timeline','funding','intent_signals','risk_flags','next_action','summary'],\n      additionalProperties: false\n    } }\n  },\n  system: 'You are the lead qualification analyst for an Indian real estate developer. You score raw enquiries so the sales team knows who to call first and so an automated nurture sequence knows how often to follow up.\\n\\nGrades:\\nHOT - clear buying intent, stated budget that matches the project, site visit interest, possession urgency, or a pre-approved loan.\\nWARM - genuine interest but vague on budget, timeline or configuration.\\nCOLD - early-stage browsing, out of budget, out of city, or price curiosity only.\\nJUNK - timepass. Set is_timepass true for these: no real intent, a test or prank entry, gibberish or an obviously fake name, an abusive message, a job seeker, a vendor pitch, a competitor fishing for price, or a broker hunting inventory. Set is_broker true for dealing, inventory, CP, channel partner, listing, resale panel.\\n\\nscore is 0-100 and must agree with the grade: HOT 75-100, WARM 45-74, COLD 15-44, JUNK 0-14.\\nnext_action is one line for the sales executive. summary is one line a manager can scan. Be decisive - do not grade everything WARM.',\n  messages: [ { role: 'user', content: 'Enquiry\\nName: ' + $json.name + '\\nSource: ' + $json.source + '\\nCampaign: ' + $json.campaign + '\\nProject: ' + $json.project + '\\nBudget: ' + $json.budget + '\\nConfiguration: ' + $json.configuration + '\\nTimeline: ' + $json.timeline + '\\nEmail: ' + $json.email + '\\nReturning enquiry: ' + $json.is_returning + '\\nMessage: ' + $json.message } ]\n}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "ai-qualify",
+      "name": "Claude - Qualify Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -380,
+        -200
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Structured outputs (output_config.format) guarantee valid JSON, so there is no brittle markdown stripping. If this call fails the lead is still saved as WARM."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Attach the grade to the lead. Never lose a lead because the model call failed.\nconst lead = $('Flag Duplicate').first().json;\nconst blocks = Array.isArray($json.content) ? $json.content : [];\nconst text = blocks.filter(b => b.type === 'text').map(b => b.text).join('').trim();\nlet ai = null;\nif ($json.stop_reason !== 'refusal' && text) { try { ai = JSON.parse(text); } catch (e) { ai = null; } }\nif (!ai) {\n  ai = { score: 50, grade: 'WARM', is_timepass: false, is_broker: false, budget_band: lead.budget || 'Unknown',\n    configuration: lead.configuration || 'Unknown', timeline: 'Unknown', funding: 'Unknown',\n    intent_signals: [], risk_flags: ['ai_grading_unavailable'], next_action: 'Manual review - automatic grading did not run',\n    summary: 'Ungraded enquiry, treat as warm until a human looks at it' };\n}\nif (ai.is_timepass) ai.grade = 'JUNK';\nreturn [{ json: {\n  ...lead,\n  grade: ai.grade,\n  score: ai.score,\n  is_timepass: !!ai.is_timepass,\n  is_broker: !!ai.is_broker,\n  budget: lead.budget || ai.budget_band,\n  budget_band: ai.budget_band,\n  configuration: lead.configuration || ai.configuration,\n  timeline: lead.timeline || ai.timeline,\n  funding: ai.funding,\n  intent_signals: (ai.intent_signals || []).join(', '),\n  risk_flags: (ai.risk_flags || []).join(', '),\n  next_action: ai.next_action,\n  ai_summary: ai.summary,\n  followup_count: 0\n} }];"
+      },
+      "id": "fn-merge-grade",
+      "name": "Merge AI Grade",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Build Context').first().json.text }}",
+        "options": {
+          "systemMessage": "=You are the WhatsApp sales assistant for {{ $('Config').first().json.COMPANY_NAME }}, an Indian real estate developer. The buyer typed something that is not one of the three menu buttons, so you are answering them directly.\n\nStyle: warm, direct, never pushy. Reply in Hinglish if the buyer writes in Hinglish, otherwise plain English. Keep it under 60 words - this is WhatsApp, not email. At most one emoji. Ask at most one question per message.\n\nRules:\n1. Answer property questions from the project_knowledge tool only. Never invent a price, carpet area, RERA number or possession date. If you do not know, say you will have the sales manager confirm.\n2. Qualify quietly - budget, configuration, possession timeline, loan or self-funded. One question at a time, never an interrogation.\n3. Push toward a site visit, that is the conversion event. You cannot book it yourself: tell the buyer to tap the *Schedule Visit* button (or reply \"book a visit\") and the system will show them live slots. Use check_availability only to answer questions like \"are Saturdays open?\".\n4. Never discuss discounts, negotiate price, or comment on possession delays or legal matters. Use escalate_to_human for those, for complaints, and whenever the buyer asks for a person.\n\nBuyer: {{ $('Build Context').first().json.name }}, phone +{{ $('Build Context').first().json.wa_id }}, interested in {{ $('Build Context').first().json.project }}. Today is {{ $now.setZone($('Config').first().json.TIMEZONE).toFormat('cccc, dd LLL yyyy HH:mm') }} IST."
+        }
+      },
+      "id": "agent",
+      "name": "Sales AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        740,
+        1040
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "If the agent errors (model down, no credential) the buyer still gets the 3-button menu on the error output - the conversation never dead-ends."
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-opus-5",
+          "mode": "list",
+          "cachedResultName": "Claude Opus 5"
+        },
+        "options": {
+          "maxTokensToSample": 1024,
+          "temperature": 0.3
+        }
+      },
+      "id": "anthropic-model",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        620,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Build Context').first().json.wa_id }}",
+        "contextWindowLength": 20
+      },
+      "id": "memory",
+      "name": "Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        780,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "name": "project_knowledge",
+        "description": "Verified facts about a project: price range, configurations, carpet area, possession date, RERA number, amenities, location, address. Pass the project name.",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Projects",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "tool-kb",
+      "name": "project_knowledge",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        920,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Read-only. Check which site visit slots are already taken, to answer questions like 'is Saturday morning free?'. Pass an ISO start and end datetime range. This tool cannot book anything.",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.CALENDAR_ID }}",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $fromAI('timeMin', 'ISO start of the range to check', 'string') }}",
+        "timeMax": "={{ $fromAI('timeMax', 'ISO end of the range to check', 'string') }}",
+        "options": {}
+      },
+      "id": "tool-avail",
+      "name": "check_availability",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1060,
+        1260
+      ],
+      "notes": "Deliberately read-only. Every real booking goes through the Schedule Visit button so the calendar, the Visits tab and the sales manager alert always stay in sync."
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Escalate to a human sales manager. Use for price negotiation, discounts, complaints, legal or possession-delay questions, or when the buyer asks for a person.",
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=Escalation - {{ $('Build Context').first().json.name }} - +{{ $('Build Context').first().json.wa_id }}",
+        "message": "={{ $fromAI('reason', 'why this needs a human, plus the buyer full question', 'string') }}",
+        "options": {}
+      },
+      "id": "tool-escalate",
+      "name": "escalate_to_human",
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        1260
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'text',\n  text: { preview_url: false, body: ($json.output || '').slice(0, 4000) }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-ai-reply",
+      "name": "WA - Send AI Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1000,
+        1040
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "anthropic-beta",
+              "value": "server-side-fallback-2026-07-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('Config').first().json.CLAUDE_MODEL,\n  max_tokens: 2000,\n  fallbacks: 'default',\n  output_config: {\n    effort: 'low',\n    format: { type: 'json_schema', schema: {\n      type: 'object',\n      properties: {\n        grade: { type: 'string', enum: ['HOT', 'WARM', 'COLD', 'JUNK'] },\n        score: { type: 'integer' },\n        is_timepass: { type: 'boolean' },\n        next_action: { type: 'string' },\n        summary: { type: 'string' }\n      },\n      required: ['grade','score','is_timepass','next_action','summary'],\n      additionalProperties: false\n    } }\n  },\n  system: 'You re-grade a real estate lead after each WhatsApp exchange. Behaviour outranks the form: someone who asks about carpet area, loan eligibility, possession or a visit is warming up; someone who only asks price and vanishes, argues, abuses, pitches a service, or is clearly a broker is JUNK - set is_timepass true for those. HOT 75-100, WARM 45-74, COLD 15-44, JUNK 0-14. Only move a grade when the conversation justifies it, and never mark a buyer JUNK for asking a hard question. summary and next_action are one line each, for the sales manager.',\n  messages: [ { role: 'user', content: 'Lead: ' + $('Build Context').first().json.name + '\\nProject: ' + $('Build Context').first().json.project + '\\nSource: ' + $('Build Context').first().json.source + '\\nCurrent grade: ' + ($('Build Context').first().json.grade || 'ungraded') + '\\nTotal touches so far: ' + $('Build Context').first().json.touch_count + '\\n\\nBuyer said: ' + $('Build Context').first().json.text + '\\n\\nAssistant replied: ' + ($('Sales AI Agent').first().json.output || '') } ]\n}) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "ai-regrade",
+      "name": "Claude - Re-grade Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1240,
+        1160
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Runs after the reply is already sent, so re-grading never adds latency to the buyer's message."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only write a grade we actually got back. A failed call must not silently downgrade a lead.\nconst blocks = Array.isArray($json.content) ? $json.content : [];\nconst text = blocks.filter(b => b.type === 'text').map(b => b.text).join('').trim();\nlet ai = null;\nif ($json.stop_reason !== 'refusal' && text) { try { ai = JSON.parse(text); } catch (e) { ai = null; } }\nconst c = $('Build Context').first().json;\nif (!ai) return [{ json: { ...c, regraded: false } }];\nif (ai.is_timepass) ai.grade = 'JUNK';\nreturn [{ json: { ...c, regraded: true, grade: ai.grade, score: ai.score, is_timepass: !!ai.is_timepass, next_action: ai.next_action, ai_summary: ai.summary } }];"
+      },
+      "id": "fn-regrade",
+      "name": "Parse New Grade",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1460,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "rg",
+              "leftValue": "={{ $json.regraded }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-regraded",
+      "name": "Grade Changed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $json.phone }}",
+            "lead_id": "={{ $json.lead_id }}",
+            "grade": "={{ $json.grade }}",
+            "score": "={{ $json.score }}",
+            "next_action": "={{ $json.next_action }}",
+            "ai_summary": "={{ $json.ai_summary }}",
+            "last_touch": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-regrade",
+      "name": "Update Grade in CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1900,
+        1160
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## 3. FREE TEXT -> AI AGENT\nAnything that is not a button tap goes to the agent: it answers from the Projects tab only, qualifies quietly, and steers to the Schedule Visit button.\n\nAfter the reply is sent, Claude re-grades the lead HOT / WARM / COLD / JUNK from how the buyer is actually behaving. That grade is what RE-05 uses to decide follow-up frequency.\n\nIf the agent errors, the buyer still gets the 3-button menu.",
+        "height": 340,
+        "width": 420,
+        "color": 6
+      },
+      "id": "note-ai",
+      "name": "Note - AI Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        280,
+        1000
+      ]
     }
   ],
   "connections": {
@@ -1436,7 +1804,7 @@
       "main": [
         [
           {
-            "node": "Save Lead to CRM",
+            "node": "Claude - Qualify Lead",
             "type": "main",
             "index": 0
           }
@@ -1625,7 +1993,7 @@
         ],
         [
           {
-            "node": "WA - Send Main Menu",
+            "node": "Sales AI Agent",
             "type": "main",
             "index": 0
           }
@@ -1833,6 +2201,151 @@
           {
             "node": "Log Outbound Reply",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude - Qualify Lead": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Grade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge AI Grade": {
+      "main": [
+        [
+          {
+            "node": "Save Lead to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales AI Agent": {
+      "main": [
+        [
+          {
+            "node": "WA - Send AI Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA - Send Main Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send AI Reply": {
+      "main": [
+        [
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Claude - Re-grade Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude - Re-grade Lead": {
+      "main": [
+        [
+          {
+            "node": "Parse New Grade",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse New Grade": {
+      "main": [
+        [
+          {
+            "node": "Grade Changed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grade Changed?": {
+      "main": [
+        [
+          {
+            "node": "Update Grade in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sales AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Sales AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "project_knowledge": {
+      "ai_tool": [
+        [
+          {
+            "node": "Sales AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "Sales AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "escalate_to_human": {
+      "ai_tool": [
+        [
+          {
+            "node": "Sales AI Agent",
+            "type": "ai_tool",
             "index": 0
           }
         ]
