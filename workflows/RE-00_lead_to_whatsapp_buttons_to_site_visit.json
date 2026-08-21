@@ -458,7 +458,7 @@
             "action": "WELCOME",
             "body": "={{ $('Flag Duplicate').first().json.welcome_body }}",
             "wa_message_id": "={{ $json.messages ? $json.messages[0].id : '' }}",
-            "status": "={{ $json.messages ? 'sent' : 'failed' }}"
+            "status": "={{ $json.messages ? 'sent' : ('FAILED ' + ($json.error?.error?.code || $json.error?.code || $json.code || '') + ' ' + ($json.error?.error?.message || $json.error?.message || $json.message || 'see the execution for details')) }}"
           },
           "matchingColumns": []
         },
@@ -1361,7 +1361,7 @@
             "action": "={{ $('Build Context').first().json.action }}",
             "body": "={{ $('Build Context').first().json.action }} handled",
             "wa_message_id": "={{ $json.messages ? $json.messages[0].id : '' }}",
-            "status": "={{ $json.messages ? 'sent' : 'failed' }}"
+            "status": "={{ $json.messages ? 'sent' : ('FAILED ' + ($json.error?.error?.code || $json.error?.code || $json.code || '') + ' ' + ($json.error?.error?.message || $json.error?.message || $json.message || 'see the execution for details')) }}"
           },
           "matchingColumns": []
         },
