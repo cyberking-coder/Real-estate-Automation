@@ -93,7 +93,8 @@
         "path": "simulate",
         "options": {
           "allowedOrigins": "*"
-        }
+        },
+        "responseMode": "responseNode"
       },
       "id": "wh-sim",
       "name": "Simulate Button Click (Local Test)",
@@ -1721,6 +1722,32 @@
         280,
         1000
       ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, accepted: $json.action, action_arg: $json.action_arg, phone: $json.wa_id, channel: $json.channel, note: 'Accepted. The reply is sent over WhatsApp - watch the execution for what happened.' }) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-inbound",
+      "name": "Respond to Simulate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -940,
+        380
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Only the /simulate webhook waits for a response. The WhatsApp trigger has already answered Meta by this point, so this is a no-op there - and set to continue on error in case it is not."
     }
   ],
   "connections": {
@@ -1896,7 +1923,7 @@
       "main": [
         [
           {
-            "node": "Find Lead in CRM",
+            "node": "Respond to Simulate",
             "type": "main",
             "index": 0
           }
@@ -2354,6 +2381,17 @@
           {
             "node": "Sales AI Agent",
             "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Simulate": {
+      "main": [
+        [
+          {
+            "node": "Find Lead in CRM",
+            "type": "main",
             "index": 0
           }
         ]
