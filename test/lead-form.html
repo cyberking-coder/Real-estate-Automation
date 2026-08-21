@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XYZ Properties - Enquiry</title>
+<style>
+  :root { --ink:#10192B; --line:#D3D9E3; --brand:#0E7C66; }
+  * { box-sizing:border-box }
+  body { font-family:system-ui,-apple-system,sans-serif; background:#F4F6FA; color:var(--ink);
+         margin:0; min-height:100vh; display:grid; place-items:center; padding:24px }
+  form { background:#fff; padding:28px; border-radius:12px; width:min(440px,100%);
+         box-shadow:0 2px 24px rgba(16,25,43,.08) }
+  h1 { font-size:20px; margin:0 0 4px }
+  p.sub { margin:0 0 20px; color:#5A6472; font-size:14px }
+  label { display:block; font-size:13px; font-weight:600; margin:14px 0 4px }
+  input, select, textarea { width:100%; padding:10px 12px; border:1px solid var(--line);
+         border-radius:8px; font-size:14px; font-family:inherit }
+  button { margin-top:20px; width:100%; padding:12px; background:var(--brand); color:#fff;
+         border:0; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer }
+  button:disabled { opacity:.6 }
+  pre { background:#10192B; color:#9FE8D5; padding:12px; border-radius:8px; font-size:12px;
+         overflow:auto; margin-top:16px; display:none }
+</style>
+</head>
+<body>
+<form id="f">
+  <h1>Enquire about XYZ Properties</h1>
+  <p class="sub">Submit and you get the WhatsApp menu instantly.</p>
+
+  <label>Full name</label>
+  <input name="name" required value="Rohan Kelkar">
+
+  <label>WhatsApp number (with country code)</label>
+  <input name="phone" required value="919876543210">
+
+  <label>Email</label>
+  <input name="email" type="email" value="buyer@example.com">
+
+  <label>Project</label>
+  <select name="project">
+    <option>XYZ Skyline Residences</option>
+    <option>XYZ Green Enclave</option>
+  </select>
+
+  <label>Budget</label>
+  <input name="budget" value="1.2 Cr">
+
+  <label>Configuration</label>
+  <input name="configuration" value="3BHK">
+
+  <label>Message</label>
+  <textarea name="message" rows="3">Looking for a 3BHK, possession within 2 years.</textarea>
+
+  <input type="hidden" name="source" value="website">
+  <input type="hidden" name="campaign" value="local-test">
+
+  <button type="submit">Submit enquiry</button>
+  <pre id="out"></pre>
+</form>
+
+<script>
+const WEBHOOK = 'http://localhost:5678/webhook/lead-intake'; // use /webhook-test/ while the canvas is in Test mode
+const f = document.getElementById('f'), out = document.getElementById('out');
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = f.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  out.style.display = 'block'; out.textContent = 'POST ' + WEBHOOK;
+  try {
+    const res = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(Object.fromEntries(new FormData(f)))
+    });
+    out.textContent = res.status + ' ' + res.statusText + '\n' + await res.text();
+  } catch (err) {
+    out.textContent = 'Failed: ' + err.message + '\nIs n8n running on localhost:5678 and the workflow active?';
+  }
+  btn.disabled = false; btn.textContent = 'Submit enquiry';
+});
+</script>
+</body>
+</html>

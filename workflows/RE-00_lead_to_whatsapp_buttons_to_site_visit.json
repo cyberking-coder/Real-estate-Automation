@@ -1,0 +1,1846 @@
+{
+  "name": "RE-00 Lead Capture -> WhatsApp Buttons -> Site Visit (localhost)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 1. LEAD CAPTURE\nAds / campaign / app / website POST here:\nhttp://localhost:5678/webhook/lead-intake\n\nBody: name, phone, email, project, source, campaign, budget, configuration, timeline, message\n\nLead is written to Google Sheets (CRM) and the buyer instantly gets a WhatsApp welcome with 3 buttons.",
+        "height": 300,
+        "width": 420,
+        "color": 4
+      },
+      "id": "note-lead",
+      "name": "Note - Lead Capture",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        -520
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. BUTTON HANDLER\nEvery WhatsApp reply lands here.\n\nVIEW DETAILS -> photos + full specs\nDOWNLOAD BROCHURE -> PDF document\nSCHEDULE VISIT -> free slots -> Google Calendar + sales manager + CRM\n\nSet the Meta webhook to your tunnel URL (ngrok/cloudflared) because localhost is not reachable by Meta.",
+        "height": 320,
+        "width": 420,
+        "color": 5
+      },
+      "id": "note-inbound",
+      "name": "Note - Button Handler",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## EDIT ME FIRST\nThe Config node holds every setting: phone number id, sheet id, calendar id, company name, sales manager.\n\nNo secrets here - the Bearer token comes from the n8n WhatsApp credential attached to each HTTP Request node.",
+        "height": 240,
+        "width": 380,
+        "color": 3
+      },
+      "id": "note-config",
+      "name": "Note - Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1300,
+        -520
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh-lead",
+      "name": "Lead Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1500,
+        -200
+      ],
+      "webhookId": "lead-intake",
+      "notes": "Website form, mobile app, Meta/Google Ads bridge, 99acres, MagicBricks - all POST the same JSON here."
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "wa-trigger",
+      "name": "WhatsApp Message Received",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1500,
+        200
+      ],
+      "webhookId": "whatsapp-inbound",
+      "notes": "Point the Meta app webhook at this URL and subscribe to the 'messages' field."
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "simulate",
+        "options": {}
+      },
+      "id": "wh-sim",
+      "name": "Simulate Button Click (Local Test)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1500,
+        420
+      ],
+      "webhookId": "simulate-button",
+      "notes": "Test the whole button flow on localhost without Meta:\ncurl -X POST http://localhost:5678/webhook/simulate -H 'content-type: application/json' -d '{\"phone\":\"919876543210\",\"action\":\"VIEW_DETAILS\"}'"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "COMPANY_NAME",
+              "value": "XYZ Properties",
+              "type": "string"
+            },
+            {
+              "id": "c2",
+              "name": "SHEET_ID",
+              "value": "PUT_YOUR_GOOGLE_SHEET_ID_HERE",
+              "type": "string"
+            },
+            {
+              "id": "c3",
+              "name": "CALENDAR_ID",
+              "value": "primary",
+              "type": "string"
+            },
+            {
+              "id": "c4",
+              "name": "WA_PHONE_NUMBER_ID",
+              "value": "PUT_YOUR_WHATSAPP_PHONE_NUMBER_ID",
+              "type": "string"
+            },
+            {
+              "id": "c5",
+              "name": "WA_API_VERSION",
+              "value": "v21.0",
+              "type": "string"
+            },
+            {
+              "id": "c6",
+              "name": "USE_APPROVED_TEMPLATE",
+              "value": "true",
+              "type": "string"
+            },
+            {
+              "id": "c7",
+              "name": "WELCOME_TEMPLATE_NAME",
+              "value": "lead_welcome_menu",
+              "type": "string"
+            },
+            {
+              "id": "c8",
+              "name": "WELCOME_TEMPLATE_LANG",
+              "value": "en",
+              "type": "string"
+            },
+            {
+              "id": "c9",
+              "name": "SALES_MANAGER_EMAIL",
+              "value": "sales.manager@example.com",
+              "type": "string"
+            },
+            {
+              "id": "c10",
+              "name": "SALES_MANAGER_WHATSAPP",
+              "value": "919999999999",
+              "type": "string"
+            },
+            {
+              "id": "c11",
+              "name": "DEFAULT_COUNTRY_CODE",
+              "value": "91",
+              "type": "string"
+            },
+            {
+              "id": "c12",
+              "name": "DEFAULT_PROJECT",
+              "value": "XYZ Skyline Residences",
+              "type": "string"
+            },
+            {
+              "id": "c13",
+              "name": "TIMEZONE",
+              "value": "Asia/Kolkata",
+              "type": "string"
+            },
+            {
+              "id": "c14",
+              "name": "VISIT_DURATION_MIN",
+              "value": 45,
+              "type": "number"
+            },
+            {
+              "id": "c15",
+              "name": "BOOKING_START_HOUR",
+              "value": 10,
+              "type": "number"
+            },
+            {
+              "id": "c16",
+              "name": "BOOKING_END_HOUR",
+              "value": 18,
+              "type": "number"
+            },
+            {
+              "id": "c17",
+              "name": "BOOKING_LEAD_HOURS",
+              "value": 3,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "cfg",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1420,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// One lead shape for every source: website, app, Meta lead ads, Google ads, portals.\nconst cfg = $('Config').first().json;\nconst cc = String(cfg.DEFAULT_COUNTRY_CODE || '91');\nconst out = [];\nfor (const item of $input.all()) {\n  const b = item.json.body || item.json;\n  let digits = String(b.phone || b.mobile || b.whatsapp || b.contact_number || '').replace(/\\D/g, '');\n  digits = digits.replace(/^0+/, '');\n  const local = digits.length > 10 ? digits.slice(-10) : digits;\n  const wa_id = digits.length > 10 ? digits : (local ? cc + local : '');\n  const now = new Date().toISOString();\n  out.push({ json: {\n    lead_id: 'L' + Date.now() + Math.floor(Math.random() * 900 + 100),\n    created_at: now,\n    name: String(b.name || b.full_name || b.lead_name || 'there').trim(),\n    phone: local,\n    wa_id: wa_id,\n    phone_e164: wa_id ? '+' + wa_id : '',\n    email: String(b.email || '').trim().toLowerCase(),\n    source: b.source || b.platform || b.utm_source || 'website',\n    campaign: b.campaign || b.utm_campaign || '',\n    project: String(b.project || b.property || cfg.DEFAULT_PROJECT).trim(),\n    budget: b.budget || b.budget_range || '',\n    configuration: b.configuration || b.bhk || '',\n    timeline: b.timeline || b.possession || '',\n    message: b.message || b.notes || b.enquiry || '',\n    status: 'New',\n    owner: '',\n    touch_count: 1,\n    last_touch: now,\n    last_action: 'LEAD_CAPTURED'\n  } });\n}\nreturn out;"
+      },
+      "id": "fn-normalise",
+      "name": "Normalise Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-dupe",
+      "name": "Find Existing Lead",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -820,
+        -200
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Keep the original lead_id / created_at when this phone already exists in the CRM.\nconst lead = $('Normalise Lead').first().json;\nconst cfg = $('Config').first().json;\nconst row = ($json && $json.phone) ? $json : {};\nconst returning = !!row.phone;\nconst project = (lead.project && lead.project !== 'Not specified') ? lead.project : (row.project || cfg.DEFAULT_PROJECT);\nconst merged = {\n  ...lead,\n  lead_id: row.lead_id || lead.lead_id,\n  created_at: row.created_at || lead.created_at,\n  email: lead.email || row.email || '',\n  owner: row.owner || '',\n  project: project,\n  is_returning: returning,\n  touch_count: Number(row.touch_count || 0) + 1,\n  status: returning ? (row.status || 'Re-enquiry') : 'New'\n};\nmerged.welcome_header = ('Welcome to ' + cfg.COMPANY_NAME).slice(0, 60);\nmerged.welcome_body = 'Hi ' + merged.name + ' \\uD83D\\uDC4B\\n\\nWelcome to ' + cfg.COMPANY_NAME + ' - thanks for your interest in *' + project + '*.\\n\\nI can send you the full details and photos, the brochure PDF, or book a site visit at a time that suits you.\\n\\nTap a button below to continue.';\nmerged.welcome_footer = (returning ? 'Good to hear from you again' : 'We reply within minutes').slice(0, 60);\nreturn [{ json: merged }];"
+      },
+      "id": "fn-dupe",
+      "name": "Flag Duplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "name": "={{ $json.name }}",
+            "phone": "={{ $json.phone }}",
+            "wa_id": "={{ $json.wa_id }}",
+            "phone_e164": "={{ $json.phone_e164 }}",
+            "email": "={{ $json.email }}",
+            "source": "={{ $json.source }}",
+            "campaign": "={{ $json.campaign }}",
+            "project": "={{ $json.project }}",
+            "budget": "={{ $json.budget }}",
+            "configuration": "={{ $json.configuration }}",
+            "timeline": "={{ $json.timeline }}",
+            "message": "={{ $json.message }}",
+            "status": "={{ $json.status }}",
+            "owner": "={{ $json.owner }}",
+            "touch_count": "={{ $json.touch_count }}",
+            "last_touch": "={{ $json.last_touch }}",
+            "last_action": "={{ $json.last_action }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-save-lead",
+      "name": "Save Lead to CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -380,
+        -200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "tpl",
+              "leftValue": "={{ $('Config').first().json.USE_APPROVED_TEMPLATE }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-template",
+      "name": "Use Approved Template?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        -200
+      ],
+      "notes": "A lead who filled a form has NOT messaged us, so the 24h service window is closed and Meta only allows an approved template. Set USE_APPROVED_TEMPLATE=false only for test numbers already in a 24h window."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Flag Duplicate').first().json.wa_id,\n  type: 'template',\n  template: {\n    name: $('Config').first().json.WELCOME_TEMPLATE_NAME,\n    language: { code: $('Config').first().json.WELCOME_TEMPLATE_LANG },\n    components: [\n      { type: 'body', parameters: [\n        { type: 'text', text: $('Flag Duplicate').first().json.name },\n        { type: 'text', text: $('Config').first().json.COMPANY_NAME },\n        { type: 'text', text: $('Flag Duplicate').first().json.project }\n      ] },\n      { type: 'button', sub_type: 'quick_reply', index: '0', parameters: [ { type: 'payload', payload: 'VIEW_DETAILS' } ] },\n      { type: 'button', sub_type: 'quick_reply', index: '1', parameters: [ { type: 'payload', payload: 'DOWNLOAD_BROCHURE' } ] },\n      { type: 'button', sub_type: 'quick_reply', index: '2', parameters: [ { type: 'payload', payload: 'BOOK_VISIT' } ] }\n    ]\n  }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-welcome-template",
+      "name": "WA - Welcome Template + 3 Buttons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        60,
+        -320
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Template body must be: Hi {{1}}, welcome to {{2}}! Thanks for your interest in {{3}}. Quick reply buttons: View Details / Download Brochure / Schedule Visit."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Flag Duplicate').first().json.wa_id,\n  type: 'interactive',\n  interactive: {\n    type: 'button',\n    header: { type: 'text', text: $('Flag Duplicate').first().json.welcome_header },\n    body: { text: $('Flag Duplicate').first().json.welcome_body },\n    footer: { text: $('Flag Duplicate').first().json.welcome_footer },\n    action: { buttons: [\n      { type: 'reply', reply: { id: 'VIEW_DETAILS', title: 'View Details' } },\n      { type: 'reply', reply: { id: 'DOWNLOAD_BROCHURE', title: 'Download Brochure' } },\n      { type: 'reply', reply: { id: 'BOOK_VISIT', title: 'Schedule Visit' } }\n    ] }\n  }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-welcome-interactive",
+      "name": "WA - Welcome Interactive Buttons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        60,
+        -80
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Messages",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "lead_id": "={{ $('Flag Duplicate').first().json.lead_id }}",
+            "phone": "={{ $('Flag Duplicate').first().json.wa_id }}",
+            "direction": "outbound",
+            "type": "welcome_menu",
+            "action": "WELCOME",
+            "body": "={{ $('Flag Duplicate').first().json.welcome_body }}",
+            "wa_message_id": "={{ $json.messages ? $json.messages[0].id : '' }}",
+            "status": "={{ $json.messages ? 'sent' : 'failed' }}"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "sheets-log-welcome",
+      "name": "Log Welcome Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        300,
+        -200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=New lead - {{ $('Flag Duplicate').first().json.name }} - {{ $('Flag Duplicate').first().json.project }}",
+        "message": "=<div style=\"font-family:system-ui,sans-serif\">\n<h2 style=\"margin:0 0 4px\">{{ $('Flag Duplicate').first().json.name }}</h2>\n<p style=\"margin:0 0 16px;color:#555\">{{ $('Flag Duplicate').first().json.is_returning ? 'Returning enquiry' : 'First-time enquiry' }} &middot; WhatsApp menu already delivered</p>\n<table cellpadding=\"6\" style=\"border-collapse:collapse;font-size:14px\">\n<tr><td><b>Phone</b></td><td>{{ $('Flag Duplicate').first().json.phone_e164 }}</td></tr>\n<tr><td><b>Email</b></td><td>{{ $('Flag Duplicate').first().json.email }}</td></tr>\n<tr><td><b>Project</b></td><td>{{ $('Flag Duplicate').first().json.project }}</td></tr>\n<tr><td><b>Source</b></td><td>{{ $('Flag Duplicate').first().json.source }} / {{ $('Flag Duplicate').first().json.campaign }}</td></tr>\n<tr><td><b>Budget</b></td><td>{{ $('Flag Duplicate').first().json.budget }}</td></tr>\n<tr><td><b>Config</b></td><td>{{ $('Flag Duplicate').first().json.configuration }}</td></tr>\n<tr><td><b>Timeline</b></td><td>{{ $('Flag Duplicate').first().json.timeline }}</td></tr>\n<tr><td><b>Message</b></td><td>{{ $('Flag Duplicate').first().json.message }}</td></tr>\n</table>\n</div>",
+        "options": {}
+      },
+      "id": "gmail-newlead",
+      "name": "Email New Lead to Sales Manager",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        -200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, lead_id: $('Flag Duplicate').first().json.lead_id, name: $('Flag Duplicate').first().json.name, phone: $('Flag Duplicate').first().json.phone_e164, project: $('Flag Duplicate').first().json.project, returning_lead: $('Flag Duplicate').first().json.is_returning, whatsapp_message_id: $('Log Welcome Sent').first().json.wa_message_id || '' }) }}",
+        "options": {}
+      },
+      "id": "respond-lead",
+      "name": "Respond to Source",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        740,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "inb",
+              "leftValue": "={{ !!($json.entry || $json.messages || $json.changes || $json.from || ($json.body && ($json.body.action !== undefined || $json.body.text !== undefined))) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-entry",
+      "name": "Inbound WhatsApp Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1200,
+        100
+      ],
+      "notes": "Keeps the two entry points apart: a form/ad lead goes down the capture path, a WhatsApp reply goes down the button-handler path."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Turns any inbound payload (WhatsApp Cloud API, or the local /simulate webhook)\n// into: { wa_id, phone, name, action, action_arg, text }\n// action is one of VIEW_DETAILS | DOWNLOAD_BROCHURE | BOOK_VISIT | SLOT | TEXT\nconst parsePayload = (raw) => {\n  const s = String(raw || '');\n  const parts = s.split('|');\n  return { action: (parts.shift() || 'TEXT').toUpperCase(), arg: parts.join('|') };\n};\nconst guessFromText = (t) => {\n  const s = t.toLowerCase();\n  if (/brochure|pdf|catalog/.test(s)) return 'DOWNLOAD_BROCHURE';\n  if (/visit|site|book|schedule|appointment|tour/.test(s)) return 'BOOK_VISIT';\n  if (/detail|price|rate|photo|pic|image|floor|info/.test(s)) return 'VIEW_DETAILS';\n  return 'TEXT';\n};\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  // --- local test harness -------------------------------------------------\n  const t = j.body || j;\n  if (!j.entry && !j.messages && !j.changes && (t.action || t.text)) {\n    const d = String(t.phone || t.wa_id || '').replace(/\\D/g, '');\n    const p = parsePayload(t.action || 'TEXT');\n    out.push({ json: { channel: 'test', wa_id: d, phone: d.slice(-10), name: t.name || 'there', action: t.action ? p.action : guessFromText(String(t.text || '')), action_arg: t.action_arg || p.arg, text: t.text || '', wa_message_id: '' } });\n    continue;\n  }\n  // --- WhatsApp Cloud API -------------------------------------------------\n  const entry = (j.entry && j.entry[0]) || j;\n  let value = (entry.changes && entry.changes[0] && entry.changes[0].value) || entry;\n  if (!value.messages && j.from && j.type) value = { messages: [j], contacts: [] };\n  if (!value.messages || !value.messages.length) continue; // delivery receipts / status callbacks\n  const contact = (value.contacts && value.contacts[0]) || {};\n  for (const m of value.messages) {\n    let action = 'TEXT', arg = '', text = '';\n    if (m.type === 'interactive') {\n      const ir = m.interactive || {};\n      const reply = ir.button_reply || ir.list_reply || {};\n      text = reply.title || '';\n      const p = parsePayload(reply.id);\n      action = p.action; arg = p.arg;\n    } else if (m.type === 'button') {\n      const btn = m.button || {};\n      text = btn.text || '';\n      const p = parsePayload(btn.payload);\n      action = p.action; arg = p.arg;\n    } else if (m.type === 'text') {\n      text = (m.text && m.text.body) || '';\n      action = guessFromText(text);\n    } else {\n      text = '[' + m.type + ']';\n    }\n    const wa = String(m.from || '').replace(/\\D/g, '');\n    out.push({ json: { channel: 'whatsapp', wa_id: wa, phone: wa.slice(-10), name: (contact.profile && contact.profile.name) || 'there', action, action_arg: arg, text, wa_message_id: m.id || '' } });\n  }\n}\nreturn out;"
+      },
+      "id": "fn-parse-inbound",
+      "name": "Parse Inbound Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "phone",
+              "lookupValue": "={{ $json.phone }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-find-lead",
+      "name": "Find Lead in CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -820,
+        260
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Attach the CRM row to the inbound message. A WhatsApp-first contact with no CRM\n// row still gets a lead_id here, so the next node creates the row.\nconst msg = $('Parse Inbound Message').first().json;\nconst cfg = $('Config').first().json;\nconst row = ($json && $json.phone) ? $json : {};\nconst now = new Date().toISOString();\nreturn [{ json: {\n  ...msg,\n  lead_id: row.lead_id || ('L' + Date.now() + Math.floor(Math.random() * 900 + 100)),\n  created_at: row.created_at || now,\n  name: (row.name && row.name !== 'there') ? row.name : msg.name,\n  email: row.email || '',\n  source: row.source || 'whatsapp',\n  project: (row.project && row.project !== 'Not specified') ? row.project : cfg.DEFAULT_PROJECT,\n  status: row.status || 'Engaged',\n  touch_count: Number(row.touch_count || 0) + 1,\n  in_crm: !!row.phone\n} }];"
+      },
+      "id": "fn-resolve-lead",
+      "name": "Resolve Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -600,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Projects",
+          "mode": "name"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "project_name",
+              "lookupValue": "={{ $json.project }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-find-project",
+      "name": "Find Project in CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -380,
+        260
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "notes": "Every price, photo and brochure link lives in the Projects tab. Nothing is hard-coded in the workflow."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build every string the reply nodes need, from the Projects row (with safe fallbacks).\nconst lead = $('Resolve Lead').first().json;\nconst cfg = $('Config').first().json;\nconst p = ($json && $json.project_name) ? $json : {};\nconst g = (k, d) => (p[k] !== undefined && String(p[k]).trim() !== '') ? String(p[k]).trim() : d;\nconst project = g('project_name', lead.project);\nconst images = [g('image_1', ''), g('image_2', ''), g('image_3', '')].filter(Boolean);\nconst tagline = g('tagline', '');\nconst details_text = [\n  '*' + project + '*' + (tagline ? ' - ' + tagline : ''),\n  '',\n  '\\uD83D\\uDCCD ' + g('location', 'Location shared on request'),\n  '\\uD83D\\uDCB0 ' + g('price_range', 'Price on request'),\n  '\\uD83C\\uDFE0 ' + g('configurations', 'Configurations on request') + (g('carpet_area', '') ? ' | ' + g('carpet_area', '') : ''),\n  '\\uD83D\\uDD11 Possession: ' + g('possession', 'On request'),\n  '\\uD83D\\uDCC4 RERA: ' + g('rera', 'On request'),\n  '',\n  '\\u2728 ' + g('amenities', 'Clubhouse, gym, kids play area, landscaped gardens')\n].join('\\n').slice(0, 1000);\nconst now = new Date().toISOString();\nreturn [{ json: {\n  ...lead,\n  project,\n  details_text,\n  images,\n  image_count: images.length,\n  brochure_url: g('brochure_url', ''),\n  brochure_name: (project.replace(/[^A-Za-z0-9 ]/g, '').trim().replace(/\\s+/g, '-') || 'brochure') + '.pdf',\n  maps_link: g('maps_link', ''),\n  address: g('address', g('location', '')),\n  price_range: g('price_range', 'Price on request'),\n  site_office_contact: g('site_office_contact', cfg.SALES_MANAGER_WHATSAPP),\n  details_sent: lead.action === 'VIEW_DETAILS' ? now : '',\n  brochure_sent: lead.action === 'DOWNLOAD_BROCHURE' ? now : '',\n  menu_footer: cfg.COMPANY_NAME.slice(0, 60)\n} }];"
+      },
+      "id": "fn-context",
+      "name": "Build Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Messages",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "lead_id": "={{ $json.lead_id }}",
+            "phone": "={{ $json.wa_id }}",
+            "direction": "inbound",
+            "type": "={{ $json.channel }}",
+            "action": "={{ $json.action }}{{ $json.action_arg ? '|' + $json.action_arg : '' }}",
+            "body": "={{ $json.text }}",
+            "wa_message_id": "={{ $json.wa_message_id }}",
+            "status": "received"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "sheets-log-in",
+      "name": "Log Inbound Message",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        60,
+        260
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $('Build Context').first().json.lead_id }}",
+            "created_at": "={{ $('Build Context').first().json.created_at }}",
+            "name": "={{ $('Build Context').first().json.name }}",
+            "phone": "={{ $('Build Context').first().json.phone }}",
+            "wa_id": "={{ $('Build Context').first().json.wa_id }}",
+            "phone_e164": "=+{{ $('Build Context').first().json.wa_id }}",
+            "email": "={{ $('Build Context').first().json.email }}",
+            "source": "={{ $('Build Context').first().json.source }}",
+            "project": "={{ $('Build Context').first().json.project }}",
+            "status": "Engaged",
+            "touch_count": "={{ $('Build Context').first().json.touch_count }}",
+            "last_touch": "={{ $now.toISO() }}",
+            "last_action": "={{ $('Build Context').first().json.action }}",
+            "details_sent": "={{ $('Build Context').first().json.details_sent }}",
+            "brochure_sent": "={{ $('Build Context').first().json.brochure_sent }}"
+          },
+          "matchingColumns": [
+            "phone"
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-touch",
+      "name": "Update Lead Activity",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        280,
+        260
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r1",
+                    "leftValue": "={{ $('Build Context').first().json.action }}",
+                    "rightValue": "VIEW_DETAILS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "View Details"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r2",
+                    "leftValue": "={{ $('Build Context').first().json.action }}",
+                    "rightValue": "DOWNLOAD_BROCHURE",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Download Brochure"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r3",
+                    "leftValue": "={{ $('Build Context').first().json.action }}",
+                    "rightValue": "BOOK_VISIT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Schedule Visit"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r4",
+                    "leftValue": "={{ $('Build Context').first().json.action }}",
+                    "rightValue": "SLOT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Slot Chosen"
+            }
+          ]
+        },
+        "fallbackOutput": "extra",
+        "options": {
+          "renameFallbackOutput": "Anything Else"
+        }
+      },
+      "id": "switch-action",
+      "name": "Route Button Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        500,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// One item per project photo, or a single empty item when the Projects row has none.\nconst c = $('Build Context').first().json;\nif (!c.images || !c.images.length) return [{ json: { has_image: false, image_url: '', caption: '' } }];\nreturn c.images.map((url, i) => ({ json: {\n  has_image: true,\n  image_url: url,\n  caption: i === 0 ? (c.project + ' - ' + c.price_range).slice(0, 1000) : ''\n} }));"
+      },
+      "id": "fn-images",
+      "name": "Prepare Project Photos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "img",
+              "leftValue": "={{ $json.has_image }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-image",
+      "name": "Has Photos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'image',\n  image: $json.caption ? { link: $json.image_url, caption: $json.caption } : { link: $json.image_url }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-photo",
+      "name": "WA - Send Project Photo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        -160
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Image URLs in the Projects tab must be public https links that Meta can fetch (Drive share links do not work - use a direct file URL)."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'interactive',\n  interactive: {\n    type: 'button',\n    body: { text: $('Build Context').first().json.details_text },\n    footer: { text: $('Build Context').first().json.menu_footer },\n    action: { buttons: [\n      { type: 'reply', reply: { id: 'DOWNLOAD_BROCHURE', title: 'Download Brochure' } },\n      { type: 'reply', reply: { id: 'BOOK_VISIT', title: 'Schedule Visit' } }\n    ] }\n  }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-details",
+      "name": "WA - Send Details + Buttons",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        -60
+      ],
+      "executeOnce": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "br",
+              "leftValue": "={{ $('Build Context').first().json.brochure_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-brochure",
+      "name": "Brochure On File?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        740,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'document',\n  document: {\n    link: $('Build Context').first().json.brochure_url,\n    filename: $('Build Context').first().json.brochure_name,\n    caption: 'Brochure - ' + $('Build Context').first().json.project\n  }\n}) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "wa-brochure",
+      "name": "WA - Send Brochure PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        60
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "brochure_url must be a public direct link to the PDF (max 100 MB)."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'interactive',\n  interactive: {\n    type: 'button',\n    body: { text: 'Brochure sent above \\uD83D\\uDCC4\\n\\nNothing beats walking through the actual flat. Shall I block a site visit slot for you?' },\n    footer: { text: $('Build Context').first().json.menu_footer },\n    action: { buttons: [\n      { type: 'reply', reply: { id: 'BOOK_VISIT', title: 'Schedule Visit' } },\n      { type: 'reply', reply: { id: 'VIEW_DETAILS', title: 'View Details' } }\n    ] }\n  }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-after-brochure",
+      "name": "WA - Nudge to Book After Brochure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        60
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'text',\n  text: { preview_url: false, body: 'The brochure for ' + $('Build Context').first().json.project + ' is being updated right now. Our sales manager will send it to you personally within the hour.' }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-no-brochure",
+      "name": "WA - Brochure Not Uploaded Yet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.CALENDAR_ID }}",
+          "mode": "id"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $now.setZone($('Config').first().json.TIMEZONE).toISO() }}",
+        "timeMax": "={{ $now.setZone($('Config').first().json.TIMEZONE).plus({ days: 8 }).toISO() }}",
+        "options": {
+          "singleEvents": true
+        }
+      },
+      "id": "cal-busy",
+      "name": "Read Calendar Availability",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        740,
+        420
+      ],
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Offer the next 3 genuinely free 45-minute slots inside site-office hours.\nconst cfg = $('Config').first().json;\nconst tz = cfg.TIMEZONE || 'Asia/Kolkata';\nconst dur = Number(cfg.VISIT_DURATION_MIN || 45);\nconst startH = Number(cfg.BOOKING_START_HOUR || 10);\nconst endH = Number(cfg.BOOKING_END_HOUR || 18);\nconst leadHours = Number(cfg.BOOKING_LEAD_HOURS || 3);\nconst busy = $input.all()\n  .map(i => i.json)\n  .filter(e => e && e.start)\n  .map(e => ({\n    s: DateTime.fromISO(e.start.dateTime || e.start.date, { zone: tz }),\n    e: DateTime.fromISO(e.end && (e.end.dateTime || e.end.date) ? (e.end.dateTime || e.end.date) : (e.start.dateTime || e.start.date), { zone: tz })\n  }))\n  .filter(b => b.s.isValid && b.e.isValid);\nconst now = DateTime.now().setZone(tz);\nconst earliest = now.plus({ hours: leadHours });\nconst slots = [];\nfor (let d = 0; d <= 7 && slots.length < 3; d++) {\n  let cur = now.plus({ days: d }).set({ hour: startH, minute: 0, second: 0, millisecond: 0 });\n  while (cur.hour < endH && slots.length < 3) {\n    const end = cur.plus({ minutes: dur });\n    const clash = busy.some(b => cur < b.e && end > b.s);\n    if (!clash && cur > earliest) {\n      slots.push({ start: cur.toISO(), end: end.toISO(), label: cur.toFormat('ccc dd LLL, HH:mm') });\n    }\n    cur = cur.plus({ minutes: dur + 15 });\n  }\n}\nif (!slots.length) {\n  const f = now.plus({ days: 1 }).set({ hour: startH + 1, minute: 0, second: 0, millisecond: 0 });\n  slots.push({ start: f.toISO(), end: f.plus({ minutes: dur }).toISO(), label: f.toFormat('ccc dd LLL, HH:mm') });\n}\nconst c = $('Build Context').first().json;\nreturn [{ json: {\n  slots,\n  prompt: 'Great! Site visits for *' + c.project + '* run ' + startH + ':00 to ' + endH + ':00 IST and take about ' + dur + ' minutes.\\n\\nPick a slot that works for you:'\n} }];"
+      },
+      "id": "fn-slots",
+      "name": "Build Available Slots",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'interactive',\n  interactive: {\n    type: 'button',\n    body: { text: $json.prompt },\n    footer: { text: 'Or reply with any other date and time' },\n    action: { buttons: $json.slots.map(s => ({ type: 'reply', reply: { id: 'SLOT|' + s.start, title: s.label.slice(0, 20) } })) }\n  }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-slots",
+      "name": "WA - Send Slot Options",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1180,
+        420
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.CALENDAR_ID }}",
+          "mode": "id"
+        },
+        "start": "={{ $('Build Context').first().json.action_arg }}",
+        "end": "={{ DateTime.fromISO($('Build Context').first().json.action_arg).plus({ minutes: $('Config').first().json.VISIT_DURATION_MIN }).toISO() }}",
+        "useDefaultReminders": false,
+        "additionalFields": {
+          "summary": "=Site Visit - {{ $('Build Context').first().json.name }} - {{ $('Build Context').first().json.project }}",
+          "location": "={{ $('Build Context').first().json.address }}",
+          "description": "=Booked by the WhatsApp assistant.\nLead ID: {{ $('Build Context').first().json.lead_id }}\nName: {{ $('Build Context').first().json.name }}\nPhone: +{{ $('Build Context').first().json.wa_id }}\nEmail: {{ $('Build Context').first().json.email }}\nProject: {{ $('Build Context').first().json.project }}\nSource: {{ $('Build Context').first().json.source }}\nMaps: {{ $('Build Context').first().json.maps_link }}",
+          "attendees": [
+            "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+            "={{ $('Build Context').first().json.email || $('Config').first().json.SALES_MANAGER_EMAIL }}"
+          ],
+          "reminders": {
+            "useDefault": false,
+            "remindersUi": {
+              "remindersValues": [
+                {
+                  "method": "email",
+                  "minutes": 1440
+                },
+                {
+                  "method": "popup",
+                  "minutes": 120
+                }
+              ]
+            }
+          }
+        }
+      },
+      "id": "cal-create",
+      "name": "Create Site Visit Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        740,
+        640
+      ],
+      "notes": "The sales manager is an attendee, so the visit lands on their calendar too and they get the Google invite."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Visits",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "event_id": "={{ $json.id }}",
+            "lead_id": "={{ $('Build Context').first().json.lead_id }}",
+            "name": "={{ $('Build Context').first().json.name }}",
+            "phone": "=+{{ $('Build Context').first().json.wa_id }}",
+            "email": "={{ $('Build Context').first().json.email }}",
+            "project": "={{ $('Build Context').first().json.project }}",
+            "visit_start_ist": "={{ DateTime.fromISO($('Build Context').first().json.action_arg).setZone($('Config').first().json.TIMEZONE).toFormat('cccc dd LLL yyyy, HH:mm') }}",
+            "visit_start_iso": "={{ $('Build Context').first().json.action_arg }}",
+            "duration_min": "={{ $('Config').first().json.VISIT_DURATION_MIN }}",
+            "status": "Scheduled",
+            "booked_via": "WhatsApp button",
+            "sales_manager": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+            "calendar_link": "={{ $json.htmlLink }}",
+            "created_at": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "sheets-visit",
+      "name": "Append Visit to CRM",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        640
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Build Context').first().json.phone }}",
+            "lead_id": "={{ $('Build Context').first().json.lead_id }}",
+            "status": "Visit Scheduled",
+            "visit_event_id": "={{ $('Create Site Visit Event').first().json.id }}",
+            "visit_at": "={{ DateTime.fromISO($('Build Context').first().json.action_arg).setZone($('Config').first().json.TIMEZONE).toFormat('cccc dd LLL yyyy, HH:mm') }}",
+            "owner": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+            "last_touch": "={{ $now.toISO() }}",
+            "last_action": "VISIT_BOOKED"
+          },
+          "matchingColumns": [
+            "phone"
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-mark-visit",
+      "name": "Mark Lead as Visit Scheduled",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1180,
+        640
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'text',\n  text: { preview_url: true, body: 'Your site visit is confirmed \\u2705\\n\\n*' + $('Build Context').first().json.project + '*\\n\\uD83D\\uDCC5 ' + DateTime.fromISO($('Build Context').first().json.action_arg).setZone($('Config').first().json.TIMEZONE).toFormat('cccc dd LLL yyyy, HH:mm') + ' IST\\n\\uD83D\\uDCCD ' + ($('Build Context').first().json.address || 'Address will be shared shortly') + ($('Build Context').first().json.maps_link ? '\\n\\uD83D\\uDDFA\\uFE0F ' + $('Build Context').first().json.maps_link : '') + '\\n\\nPlease carry a photo ID. Parking is available on site. Our sales manager ' + $('Config').first().json.SALES_MANAGER_EMAIL.split('@')[0] + ' will meet you there.\\n\\nNeed to reschedule? Just reply here.' }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-confirm",
+      "name": "WA - Visit Confirmation to Buyer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        640
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Config').first().json.SALES_MANAGER_WHATSAPP,\n  type: 'text',\n  text: { preview_url: false, body: 'New site visit booked \\uD83D\\uDCC5\\n\\n' + $('Build Context').first().json.name + '\\n+' + $('Build Context').first().json.wa_id + '\\n' + $('Build Context').first().json.project + '\\n' + DateTime.fromISO($('Build Context').first().json.action_arg).setZone($('Config').first().json.TIMEZONE).toFormat('cccc dd LLL yyyy, HH:mm') + ' IST\\n\\nSource: ' + $('Build Context').first().json.source + '\\nCalendar invite sent to your email.' }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-notify-manager",
+      "name": "WA - Notify Sales Manager",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        640
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "The manager must have messaged the business number in the last 24h, or use an approved template here too."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=Site visit booked - {{ $('Build Context').first().json.name }} - {{ $('Build Context').first().json.project }}",
+        "message": "=<div style=\"font-family:system-ui,sans-serif\">\n<h2 style=\"margin:0 0 4px\">Site visit confirmed</h2>\n<p style=\"margin:0 0 16px;color:#555\">Booked by the buyer from the WhatsApp menu. Calendar invite already sent.</p>\n<table cellpadding=\"6\" style=\"border-collapse:collapse;font-size:14px\">\n<tr><td><b>Buyer</b></td><td>{{ $('Build Context').first().json.name }}</td></tr>\n<tr><td><b>Phone</b></td><td>+{{ $('Build Context').first().json.wa_id }}</td></tr>\n<tr><td><b>Email</b></td><td>{{ $('Build Context').first().json.email }}</td></tr>\n<tr><td><b>Project</b></td><td>{{ $('Build Context').first().json.project }}</td></tr>\n<tr><td><b>When</b></td><td>{{ DateTime.fromISO($('Build Context').first().json.action_arg).setZone($('Config').first().json.TIMEZONE).toFormat('cccc dd LLL yyyy, HH:mm') }} IST</td></tr>\n<tr><td><b>Where</b></td><td>{{ $('Build Context').first().json.address }}</td></tr>\n<tr><td><b>Source</b></td><td>{{ $('Build Context').first().json.source }}</td></tr>\n<tr><td><b>Calendar</b></td><td><a href=\"{{ $('Create Site Visit Event').first().json.htmlLink }}\">Open event</a></td></tr>\n</table>\n</div>",
+        "options": {}
+      },
+      "id": "gmail-visit",
+      "name": "Email Visit to Sales Manager",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        640
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.WA_API_VERSION }}/{{ $('Config').first().json.WA_PHONE_NUMBER_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  messaging_product: 'whatsapp',\n  recipient_type: 'individual',\n  to: $('Build Context').first().json.wa_id,\n  type: 'interactive',\n  interactive: {\n    type: 'button',\n    body: { text: 'Thanks for your message! A sales executive will read it and get back to you shortly.\\n\\nMeanwhile, anything I can do right now for *' + $('Build Context').first().json.project + '*?' },\n    footer: { text: $('Build Context').first().json.menu_footer },\n    action: { buttons: [\n      { type: 'reply', reply: { id: 'VIEW_DETAILS', title: 'View Details' } },\n      { type: 'reply', reply: { id: 'DOWNLOAD_BROCHURE', title: 'Download Brochure' } },\n      { type: 'reply', reply: { id: 'BOOK_VISIT', title: 'Schedule Visit' } }\n    ] }\n  }\n}) }}",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "id": "wa-menu",
+      "name": "WA - Send Main Menu",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        740,
+        860
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Free-text fallback. Connect your RE-02 AI agent here if you want conversational answers instead of a menu."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Messages",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "lead_id": "={{ $('Build Context').first().json.lead_id }}",
+            "phone": "={{ $('Build Context').first().json.wa_id }}",
+            "direction": "outbound",
+            "type": "reply",
+            "action": "={{ $('Build Context').first().json.action }}",
+            "body": "={{ $('Build Context').first().json.action }} handled",
+            "wa_message_id": "={{ $json.messages ? $json.messages[0].id : '' }}",
+            "status": "={{ $json.messages ? 'sent' : 'failed' }}"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "sheets-log-out",
+      "name": "Log Outbound Reply",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2100,
+        300
+      ],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Lead Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Message Received": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulate Button Click (Local Test)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Inbound WhatsApp Message?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inbound WhatsApp Message?": {
+      "main": [
+        [
+          {
+            "node": "Parse Inbound Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalise Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise Lead": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Flag Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Save Lead to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Lead to CRM": {
+      "main": [
+        [
+          {
+            "node": "Use Approved Template?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Approved Template?": {
+      "main": [
+        [
+          {
+            "node": "WA - Welcome Template + 3 Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA - Welcome Interactive Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Welcome Template + 3 Buttons": {
+      "main": [
+        [
+          {
+            "node": "Log Welcome Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Welcome Interactive Buttons": {
+      "main": [
+        [
+          {
+            "node": "Log Welcome Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Welcome Sent": {
+      "main": [
+        [
+          {
+            "node": "Email New Lead to Sales Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email New Lead to Sales Manager": {
+      "main": [
+        [
+          {
+            "node": "Respond to Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Inbound Message": {
+      "main": [
+        [
+          {
+            "node": "Find Lead in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead in CRM": {
+      "main": [
+        [
+          {
+            "node": "Resolve Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Lead": {
+      "main": [
+        [
+          {
+            "node": "Find Project in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Project in CRM": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "Log Inbound Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Inbound Message": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Activity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Activity": {
+      "main": [
+        [
+          {
+            "node": "Route Button Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Button Action": {
+      "main": [
+        [
+          {
+            "node": "Prepare Project Photos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Brochure On File?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Calendar Availability",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Site Visit Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA - Send Main Menu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Project Photos": {
+      "main": [
+        [
+          {
+            "node": "Has Photos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Photos?": {
+      "main": [
+        [
+          {
+            "node": "WA - Send Project Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA - Send Details + Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send Project Photo": {
+      "main": [
+        [
+          {
+            "node": "WA - Send Details + Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send Details + Buttons": {
+      "main": [
+        [
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brochure On File?": {
+      "main": [
+        [
+          {
+            "node": "WA - Send Brochure PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "WA - Brochure Not Uploaded Yet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send Brochure PDF": {
+      "main": [
+        [
+          {
+            "node": "WA - Nudge to Book After Brochure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Nudge to Book After Brochure": {
+      "main": [
+        [
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Brochure Not Uploaded Yet": {
+      "main": [
+        [
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Calendar Availability": {
+      "main": [
+        [
+          {
+            "node": "Build Available Slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Available Slots": {
+      "main": [
+        [
+          {
+            "node": "WA - Send Slot Options",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send Slot Options": {
+      "main": [
+        [
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Site Visit Event": {
+      "main": [
+        [
+          {
+            "node": "Append Visit to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Visit to CRM": {
+      "main": [
+        [
+          {
+            "node": "Mark Lead as Visit Scheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Lead as Visit Scheduled": {
+      "main": [
+        [
+          {
+            "node": "WA - Visit Confirmation to Buyer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Visit Confirmation to Buyer": {
+      "main": [
+        [
+          {
+            "node": "WA - Notify Sales Manager",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Notify Sales Manager": {
+      "main": [
+        [
+          {
+            "node": "Email Visit to Sales Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WA - Send Main Menu": {
+      "main": [
+        [
+          {
+            "node": "Log Outbound Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
