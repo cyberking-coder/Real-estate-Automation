@@ -10,6 +10,10 @@ One n8n workflow that takes a lead from **any ad, campaign, app or website form*
 | [`workflows/RE-00_lead_to_whatsapp_buttons_to_site_visit.json`](workflows/RE-00_lead_to_whatsapp_buttons_to_site_visit.json) | capture → WhatsApp menu → details / brochure / site visit, plus the AI agent for free text and AI lead grading |
 | [`workflows/RE-05_followup_engine.json`](workflows/RE-05_followup_engine.json) | the daily **WhatsApp** follow-up sweep for leads who never replied |
 | [`workflows/RE-04_email_followup_and_manager_digest.json`](workflows/RE-04_email_followup_and_manager_digest.json) | the **email** follow-up arm on the same cadence, plus the manager's morning digest |
+| [`workflows/RE-06_dashboard_api.json`](workflows/RE-06_dashboard_api.json) | read-only JSON feed that powers the live dashboard |
+
+**Also here:** [`docs/XYZ-Properties-Setup-Guide.pdf`](docs/XYZ-Properties-Setup-Guide.pdf) — the full 8-page setup guide,
+and [`dashboard/index.html`](dashboard/index.html) — a live operations dashboard wired to n8n.
 
 ---
 
@@ -295,6 +299,41 @@ actually produces — in-conversation, nurturing, at-cap, visits booked, junk by
 `MAX_FOLLOWUPS`, `CONVERSATION_HOLD_HOURS`, `DAILY_SEND_CAP`. These are a starting point, not a law;
 review them after a month of real data. Worth saying out loud to the client — it signals you have
 thought about their brand, not just the automation.
+
+---
+
+## The live dashboard
+
+`dashboard/index.html` is a single self-contained page that reads the CRM through **RE-06** and refreshes
+every 30 seconds. Open it straight off disk, or serve the folder:
+
+```bash
+cd dashboard && python3 -m http.server 8080     # then open http://localhost:8080
+```
+
+Click **Connection**, paste the RE-06 webhook URL and the `DASHBOARD_KEY` from its Config node. Settings
+are stored in that browser only.
+
+| View | What it answers |
+|---|---|
+| **Live overview** | KPIs, the capture-to-booking funnel, grade mix, the live message feed, 14-day volume, sources |
+| **Leads** | every lead with grade, score, status, source, last touch, follow-ups used |
+| **Follow-up queue** | who gets messaged on the next sweep, who is paused mid-conversation, who hit the cap |
+| **Site visits** | upcoming bookings with a link straight to the calendar event |
+| **Conversations** | every WhatsApp message in and out, newest first |
+| **Projects** | demand per project — and whether the bot actually has photos and a brochure to send |
+| **Automation health** | when each stage last ran, plus content problems that would break a reply |
+
+The browser only renders: every count, rate and follow-up decision is computed in RE-06's
+`Build Dashboard Payload` node, using the same cadence rules RE-04 and RE-05 run on — so the queue the
+dashboard predicts is the queue that actually sends. Keep the cadence numbers in step across all three.
+
+Colours are not decorative. The HOT/WARM/COLD palette was validated for colourblind separation and
+contrast against the page (`#A83629 / #A8781A / #2F6FA8`), every grade carries its text label, and
+magnitude bars use a single hue so identity comes from the label rather than the colour.
+
+> **Do not host this page publicly.** It reads the whole CRM using a key in a query string — fine on a
+> laptop, not fine on a public URL.
 
 ---
 

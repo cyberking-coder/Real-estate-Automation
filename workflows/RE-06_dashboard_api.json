@@ -1,0 +1,418 @@
+{
+  "name": "RE-06 Dashboard API",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## THE DASHBOARD'S DATA SOURCE\nGET http://localhost:5678/webhook/dashboard-data?key=YOUR_KEY\n\nReads all four CRM tabs, computes every number the dashboard shows, and returns one JSON payload with CORS enabled so a local HTML file can fetch it.\n\nOpen dashboard/index.html in a browser, paste the same key into its settings, and it refreshes on a timer.",
+        "height": 300,
+        "width": 440,
+        "color": 4
+      },
+      "id": "note",
+      "name": "Note - Dashboard API",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "dashboard-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "wh",
+      "name": "Dashboard Data Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        240
+      ],
+      "webhookId": "dashboard-data",
+      "notes": "GET, so the browser sends no preflight. The key travels as a query parameter rather than a header for the same reason."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1",
+              "name": "COMPANY_NAME",
+              "value": "XYZ Properties",
+              "type": "string"
+            },
+            {
+              "id": "d2",
+              "name": "SHEET_ID",
+              "value": "PUT_YOUR_GOOGLE_SHEET_ID_HERE",
+              "type": "string"
+            },
+            {
+              "id": "d3",
+              "name": "DASHBOARD_KEY",
+              "value": "change-me-local-dashboard",
+              "type": "string"
+            },
+            {
+              "id": "d4",
+              "name": "TIMEZONE",
+              "value": "Asia/Kolkata",
+              "type": "string"
+            },
+            {
+              "id": "d5",
+              "name": "CADENCE_HOT_DAYS",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "d6",
+              "name": "CADENCE_WARM_DAYS",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "d7",
+              "name": "CADENCE_COLD_DAYS",
+              "value": 21,
+              "type": "number"
+            },
+            {
+              "id": "d8",
+              "name": "MAX_FOLLOWUPS",
+              "value": 6,
+              "type": "number"
+            },
+            {
+              "id": "d9",
+              "name": "CONVERSATION_HOLD_HOURS",
+              "value": 72,
+              "type": "number"
+            },
+            {
+              "id": "d10",
+              "name": "SLA_MINUTES",
+              "value": 15,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "cfg",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -900,
+        240
+      ],
+      "notes": "Cadence values must match RE-04 and RE-05, otherwise the follow-up queue shown here will not match what actually gets sent."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "k",
+              "leftValue": "={{ $json.query.key }}",
+              "rightValue": "={{ $json.DASHBOARD_KEY }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-key",
+      "name": "Authorised?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -680,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "read-leads",
+      "name": "Read Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -460,
+        160
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Projects",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "read-projects",
+      "name": "Read Projects",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -240,
+        160
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "notes": "executeOnce, or this would re-read the tab once per lead row coming out of the previous node."
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Visits",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "read-visits",
+      "name": "Read Visits",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -20,
+        160
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Messages",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "read-messages",
+      "name": "Read Messages",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        200,
+        160
+      ],
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Cache-Control",
+                "value": "no-store"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond",
+      "name": "Respond with Dashboard JSON",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ error: 'unauthorized', hint: 'Append ?key=<DASHBOARD_KEY> from the Config node.' }) }}",
+        "options": {
+          "responseCode": 401,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-401",
+      "name": "Respond Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        -460,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Everything the dashboard shows is computed here, so the browser only renders.\nconst cfg = $('Config').first().json;\nconst rows = (n) => $(n).all().map(i => i.json);\nconst leads    = rows('Read Leads').filter(l => l && (l.lead_id || l.phone));\nconst projects = rows('Read Projects').filter(p => p && p.project_name);\nconst visits   = rows('Read Visits').filter(v => v && v.event_id);\nconst messages = rows('Read Messages').filter(m => m && m.timestamp);\n\nconst TZ = cfg.TIMEZONE || 'Asia/Kolkata';\nconst now = Date.now();\nconst ms = (v) => { const t = new Date(v || 0).getTime(); return Number.isFinite(t) && t > 0 ? t : 0; };\nconst daysSince = (v) => ms(v) ? (now - ms(v)) / 86400000 : null;\nconst day = (v) => ms(v) ? new Date(ms(v)).toLocaleDateString('en-CA', { timeZone: TZ }) : '';\nconst today = new Date(now).toLocaleDateString('en-CA', { timeZone: TZ });\nconst grade = (l) => String(l.grade || '').toUpperCase() || 'UNGRADED';\nconst status = (l) => String(l.status || 'New').trim();\nconst num = (v) => Number(v || 0) || 0;\nconst CLOSED = ['Booked', 'Lost', 'Dropped'];\n\n// ---- cadence, mirrored from RE-04 / RE-05 so the queue matches what will actually send\nconst CADENCE = { HOT: num(cfg.CADENCE_HOT_DAYS), WARM: num(cfg.CADENCE_WARM_DAYS), COLD: num(cfg.CADENCE_COLD_DAYS), JUNK: 999 };\nconst MAX_FOLLOWUPS = num(cfg.MAX_FOLLOWUPS);\nconst HOLD_HOURS = num(cfg.CONVERSATION_HOLD_HOURS);\nconst SLA_MINUTES = num(cfg.SLA_MINUTES) || 15;\n\nfunction nurture(l) {\n  const st = status(l);\n  if (CLOSED.includes(st)) return { state: 'closed', due_in_days: null };\n  if (st === 'Engaged') {\n    const quiet = (now - ms(l.last_inbound_at || l.last_touch)) / 3600000;\n    if (quiet < HOLD_HOURS) return { state: 'in_conversation', due_in_days: Math.round((HOLD_HOURS - quiet) / 24 * 10) / 10 };\n  }\n  if (num(l.followup_count) >= MAX_FOLLOWUPS) return { state: 'at_cap', due_in_days: null };\n  const g = grade(l);\n  if (g === 'JUNK') return { state: 'junk', due_in_days: null };\n  const interval = CADENCE[g] ?? CADENCE.WARM;\n  const since = daysSince(l.last_touch || l.created_at);\n  if (since === null) return { state: 'unknown', due_in_days: null };\n  const left = interval - since;\n  return { state: left <= 0 ? 'due' : 'waiting', due_in_days: Math.round(left * 10) / 10 };\n}\nconst withNurture = leads.map(l => ({ ...l, __n: nurture(l) }));\n\nconst countStatus = (s) => leads.filter(l => status(l) === s).length;\nconst countGrade  = (g) => leads.filter(l => grade(l) === g).length;\nconst live = leads.filter(l => !CLOSED.includes(status(l)));\nconst replied = leads.filter(l => ms(l.last_inbound_at) > 0).length;\nconst engagedContent = leads.filter(l => ms(l.details_sent) > 0 || ms(l.brochure_sent) > 0).length;\nconst visitCount = countStatus('Visit Scheduled');\nconst bookedCount = countStatus('Booked');\nconst pct = (a, b) => b ? Math.round((a / b) * 1000) / 10 : 0;\n\n// ---- sources, one row per channel actually seen in the data\nconst srcMap = {};\nfor (const l of leads) {\n  const s = (l.source || 'unknown').toString().trim() || 'unknown';\n  srcMap[s] = srcMap[s] || { source: s, total: 0, hot: 0, junk: 0, replied: 0, visits: 0, booked: 0 };\n  const e = srcMap[s];\n  e.total++;\n  if (grade(l) === 'HOT') e.hot++;\n  if (grade(l) === 'JUNK') e.junk++;\n  if (ms(l.last_inbound_at) > 0) e.replied++;\n  if (status(l) === 'Visit Scheduled') e.visits++;\n  if (status(l) === 'Booked') e.booked++;\n}\nconst sources = Object.values(srcMap).sort((a, b) => b.total - a.total);\n\n// ---- projects\nconst projMap = {};\nfor (const p of projects) projMap[p.project_name] = { project: p.project_name, price_range: p.price_range || '', leads: 0, hot: 0, visits: 0, booked: 0, has_brochure: !!String(p.brochure_url || '').trim(), photos: [p.image_1, p.image_2, p.image_3].filter(x => String(x || '').trim()).length };\nfor (const l of leads) {\n  const k = l.project;\n  if (!k) continue;\n  projMap[k] = projMap[k] || { project: k, price_range: '', leads: 0, hot: 0, visits: 0, booked: 0, has_brochure: false, photos: 0, missing_from_projects_tab: true };\n  projMap[k].leads++;\n  if (grade(l) === 'HOT') projMap[k].hot++;\n  if (status(l) === 'Visit Scheduled') projMap[k].visits++;\n  if (status(l) === 'Booked') projMap[k].booked++;\n}\nconst projectRows = Object.values(projMap).sort((a, b) => b.leads - a.leads);\n\n// ---- activity feed, newest first\nconst feed = messages.slice()\n  .sort((a, b) => ms(b.timestamp) - ms(a.timestamp))\n  .slice(0, 60)\n  .map(m => ({\n    at: m.timestamp, lead_id: m.lead_id || '', phone: m.phone || '',\n    direction: (m.direction || '').toLowerCase(), type: m.type || '',\n    action: m.action || '', body: String(m.body || '').slice(0, 220), status: m.status || ''\n  }));\nconst byId = {};\nfor (const l of leads) if (l.lead_id) byId[l.lead_id] = l.name;\nfor (const f of feed) f.name = byId[f.lead_id] || '';\n\n// ---- messages per day, last 14 days\nconst spark = [];\nfor (let i = 13; i >= 0; i--) {\n  const d = new Date(now - i * 86400000).toLocaleDateString('en-CA', { timeZone: TZ });\n  spark.push({\n    day: d,\n    inbound: messages.filter(m => day(m.timestamp) === d && (m.direction || '').toLowerCase() === 'inbound').length,\n    outbound: messages.filter(m => day(m.timestamp) === d && (m.direction || '').toLowerCase() === 'outbound').length\n  });\n}\n\n// ---- visits\nconst upcoming = visits\n  .filter(v => ms(v.visit_start_iso) >= now && String(v.status || 'Scheduled') === 'Scheduled')\n  .sort((a, b) => ms(a.visit_start_iso) - ms(b.visit_start_iso))\n  .slice(0, 12);\nconst past = visits.filter(v => ms(v.visit_start_iso) < now);\n\n// ---- follow-up queue\nconst dueNow = withNurture.filter(l => l.__n.state === 'due')\n  .sort((a, b) => (daysSince(b.last_touch) || 0) - (daysSince(a.last_touch) || 0));\nconst atCap = withNurture.filter(l => l.__n.state === 'at_cap');\nconst inConversation = withNurture.filter(l => l.__n.state === 'in_conversation');\n\nconst slim = (l) => ({\n  lead_id: l.lead_id, name: l.name || '(no name)', phone: l.phone || '', wa_id: l.wa_id || '',\n  email: l.email || '', project: l.project || '', source: l.source || 'unknown',\n  grade: grade(l), score: num(l.score), status: status(l), owner: l.owner || '',\n  followup_count: num(l.followup_count), touch_count: num(l.touch_count),\n  created_at: l.created_at || '', last_touch: l.last_touch || '', last_inbound_at: l.last_inbound_at || '',\n  last_action: l.last_action || '', next_action: l.next_action || '', ai_summary: l.ai_summary || '',\n  visit_at: l.visit_at || '', nurture: l.__n\n});\n\n// ---- pipeline health, derived from the data the workflows actually write\nconst maxOf = (arr, f) => arr.reduce((a, x) => Math.max(a, ms(f(x))), 0);\nconst lastLead = maxOf(leads, l => l.created_at);\nconst lastInbound = maxOf(messages.filter(m => (m.direction || '').toLowerCase() === 'inbound'), m => m.timestamp);\nconst lastOutbound = maxOf(messages.filter(m => (m.direction || '').toLowerCase() === 'outbound'), m => m.timestamp);\nconst lastFollowup = maxOf(leads, l => l.last_followup_at);\nconst lastVisitBooked = maxOf(visits, v => v.created_at);\nconst iso = (t) => t ? new Date(t).toISOString() : '';\n\nconst payload = {\n  ok: true,\n  generated_at: new Date(now).toISOString(),\n  company: cfg.COMPANY_NAME,\n  timezone: TZ,\n  config: { max_followups: MAX_FOLLOWUPS, cadence: CADENCE, hold_hours: HOLD_HOURS, sla_minutes: SLA_MINUTES },\n  kpis: {\n    total_leads: leads.length,\n    live: live.length,\n    new_leads: countStatus('New'),\n    engaged: countStatus('Engaged'),\n    nurturing: countStatus('Nurturing'),\n    visit_scheduled: visitCount,\n    booked: bookedCount,\n    lost: countStatus('Lost') + countStatus('Dropped'),\n    hot: countGrade('HOT'), warm: countGrade('WARM'), cold: countGrade('COLD'),\n    junk: countGrade('JUNK'), ungraded: countGrade('UNGRADED'),\n    unowned: live.filter(l => !String(l.owner || '').trim()).length,\n    breached_sla: live.filter(l => status(l) === 'New' && ms(l.created_at) && (now - ms(l.created_at)) / 60000 > SLA_MINUTES).length,\n    at_cap: atCap.length,\n    in_conversation: inConversation.length,\n    due_now: dueNow.length,\n    leads_today: leads.filter(l => day(l.created_at) === today).length,\n    messages_today: messages.filter(m => day(m.timestamp) === today).length,\n    visits_upcoming: upcoming.length,\n    visits_done: past.length,\n    reply_rate: pct(replied, leads.length),\n    visit_rate: pct(visitCount + bookedCount, leads.length),\n    booking_rate: pct(bookedCount, leads.length)\n  },\n  funnel: [\n    { stage: 'Lead captured', count: leads.length },\n    { stage: 'WhatsApp menu delivered', count: leads.filter(l => ms(l.last_touch) > 0).length },\n    { stage: 'Buyer replied', count: replied },\n    { stage: 'Details or brochure sent', count: engagedContent },\n    { stage: 'Site visit scheduled', count: visitCount + bookedCount },\n    { stage: 'Booked', count: bookedCount }\n  ],\n  grades: [\n    { grade: 'HOT', count: countGrade('HOT') },\n    { grade: 'WARM', count: countGrade('WARM') },\n    { grade: 'COLD', count: countGrade('COLD') },\n    { grade: 'JUNK', count: countGrade('JUNK') },\n    { grade: 'UNGRADED', count: countGrade('UNGRADED') }\n  ],\n  sources,\n  projects: projectRows,\n  activity: feed,\n  message_trend: spark,\n  upcoming_visits: upcoming.map(v => ({\n    event_id: v.event_id, name: v.name || '', phone: v.phone || '', project: v.project || '',\n    when: v.visit_start_ist || '', when_iso: v.visit_start_iso || '',\n    sales_manager: v.sales_manager || '', calendar_link: v.calendar_link || '', status: v.status || 'Scheduled'\n  })),\n  followups: { due_now: dueNow.slice(0, 40).map(slim), at_cap: atCap.slice(0, 40).map(slim), in_conversation: inConversation.slice(0, 40).map(slim) },\n  leads: withNurture\n    .slice()\n    .sort((a, b) => ms(b.last_touch || b.created_at) - ms(a.last_touch || a.created_at))\n    .slice(0, 300)\n    .map(slim),\n  health: {\n    last_lead_at: iso(lastLead),\n    last_inbound_at: iso(lastInbound),\n    last_outbound_at: iso(lastOutbound),\n    last_followup_at: iso(lastFollowup),\n    last_visit_booked_at: iso(lastVisitBooked),\n    rows: { leads: leads.length, projects: projects.length, visits: visits.length, messages: messages.length },\n    warnings: [\n      projects.length === 0 ? 'The Projects tab is empty - the bot has nothing to send for View Details or Download Brochure.' : null,\n      projectRows.some(p => p.missing_from_projects_tab) ? 'Some leads name a project that has no row in the Projects tab.' : null,\n      projectRows.some(p => !p.missing_from_projects_tab && !p.has_brochure) ? 'At least one project has no brochure_url - Download Brochure will fall back to the apology message.' : null,\n      projectRows.some(p => !p.missing_from_projects_tab && p.photos === 0) ? 'At least one project has no photos - View Details will send text only.' : null,\n      leads.length && !lastInbound ? 'No inbound WhatsApp message has ever been logged - check the Meta webhook and your tunnel.' : null\n    ].filter(Boolean)\n  }\n};\nreturn [{ json: payload }];\n"
+      },
+      "id": "build",
+      "name": "Build Dashboard Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        160
+      ],
+      "notes": "The browser only renders. Every count, rate, funnel stage and follow-up decision is computed here, using the same cadence rules as RE-04 and RE-05."
+    }
+  ],
+  "connections": {
+    "Dashboard Data Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Authorised?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authorised?": {
+      "main": [
+        [
+          {
+            "node": "Read Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Leads": {
+      "main": [
+        [
+          {
+            "node": "Read Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Projects": {
+      "main": [
+        [
+          {
+            "node": "Read Visits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Visits": {
+      "main": [
+        [
+          {
+            "node": "Read Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Messages": {
+      "main": [
+        [
+          {
+            "node": "Build Dashboard Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dashboard Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond with Dashboard JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

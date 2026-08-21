@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Setup Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:16mm 15mm 18mm}
+@page:first{margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+ --navy:#0F1B2D;--navy-8:#16273D;--ivory:#FAF7F2;--ivory-d:#F1ECE2;--line:#E7E1D4;--line-s:#EFEAE0;
+ --ink:#1B1B18;--dim:#5B5A52;--faint:#8B897E;--gold:#B8934D;--blue:#2F6FA8;--green:#1D7A52;--red:#A83629;--amber:#A8781A;
+ --d:'Fraunces',Georgia,serif;--b:'Inter',system-ui,sans-serif;--m:'JetBrains Mono',ui-monospace,monospace;}
+body{font-family:var(--b);color:var(--ink);font-size:9.6pt;line-height:1.55;background:#fff}
+h1,h2,h3,h4{font-family:var(--d);font-weight:600;line-height:1.2}
+p{margin:0 0 7pt}
+a{color:var(--blue);text-decoration:none}
+code{font-family:var(--m);font-size:8.5pt;background:var(--ivory-d);padding:1pt 3pt;border-radius:2pt;white-space:nowrap}
+b,strong{font-weight:600}
+ul,ol{margin:0 0 7pt 14pt}li{margin-bottom:3pt}
+
+/* cover */
+.cover{height:297mm;background:var(--navy);color:#fff;padding:26mm 22mm;display:flex;flex-direction:column;page-break-after:always;position:relative;overflow:hidden}
+.cover:after{content:'';position:absolute;right:-60mm;bottom:-70mm;width:170mm;height:170mm;border-radius:50%;background:rgba(184,147,77,.09)}
+.cmark{width:15mm;height:15mm;border-radius:4mm;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--d);font-size:20pt;font-weight:700;color:var(--navy);margin-bottom:14mm}
+.ctag{font-size:8pt;letter-spacing:2.6pt;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:5mm}
+.cover h1{font-size:33pt;line-height:1.08;margin-bottom:6mm;max-width:135mm}
+.cover .lede{font-size:11.5pt;color:rgba(255,255,255,.78);max-width:118mm;line-height:1.6}
+.cbox{margin-top:auto;border-top:1px solid rgba(255,255,255,.16);padding-top:7mm;display:flex;gap:14mm;position:relative;z-index:2}
+.cbox div{font-size:8.6pt;color:rgba(255,255,255,.55);line-height:1.7}
+.cbox b{display:block;color:#fff;font-size:9.6pt;font-weight:600}
+
+/* structure */
+.chapter{page-break-before:always}
+h2.ch{font-size:19pt;margin:0 0 2mm;padding-bottom:3mm;border-bottom:2px solid var(--navy)}
+.ch-sub{font-size:9.6pt;color:var(--faint);margin-bottom:7mm}
+h3{font-size:12.5pt;margin:8mm 0 3mm;color:var(--navy)}
+h4{font-size:10pt;margin:5mm 0 2mm}
+.step{display:grid;grid-template-columns:9mm 1fr;gap:5mm;margin-bottom:7mm;page-break-inside:avoid}
+.stepno{width:9mm;height:9mm;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--d);font-size:10pt;font-weight:600;display:flex;align-items:center;justify-content:center;margin-top:.5mm}
+.step h4{margin:1mm 0 2mm;font-size:11.5pt}
+
+pre{background:var(--navy);color:#E8EEF5;font-family:var(--m);font-size:8.1pt;line-height:1.62;padding:4mm 5mm;border-radius:2.5mm;margin:0 0 6pt;white-space:pre-wrap;word-break:break-word}
+pre .c{color:#8FA7BF}
+pre b{color:var(--gold);font-weight:500}
+
+table{width:100%;border-collapse:collapse;font-size:8.7pt;margin:0 0 7pt;page-break-inside:avoid}
+th{background:var(--navy);color:#fff;text-align:left;padding:2.4mm 3mm;font-size:7.6pt;text-transform:uppercase;letter-spacing:.4pt;font-weight:600}
+td{padding:2.4mm 3mm;border-bottom:1px solid var(--line-s);vertical-align:top}
+tr:nth-child(even) td{background:var(--ivory)}
+td code{white-space:normal}
+
+.callout{border-left:3px solid var(--blue);background:var(--ivory);padding:3.5mm 4.5mm;margin:0 0 7pt;border-radius:0 2mm 2mm 0;page-break-inside:avoid}
+.callout.warn{border-color:var(--amber);background:#FCF8EF}
+.callout.stop{border-color:var(--red);background:#FDF6F4}
+.callout.ok{border-color:var(--green);background:#F1F7F3}
+.callout h4{margin:0 0 1.5mm;font-size:9.6pt}
+.callout p:last-child{margin-bottom:0}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:5mm;margin-bottom:7pt}
+.card{border:1px solid var(--line);border-radius:2.5mm;padding:4mm;page-break-inside:avoid}
+.card h4{margin:0 0 1.5mm}
+.card p{font-size:8.7pt;color:var(--dim);margin:0}
+
+.flow{border:1px solid var(--line);border-radius:2.5mm;padding:5mm;background:var(--ivory);font-family:var(--m);font-size:7.9pt;line-height:1.75;white-space:pre;overflow:hidden;margin-bottom:7pt}
+.check{list-style:none;margin-left:0}
+.check li{padding-left:7mm;position:relative;margin-bottom:2.6mm}
+.check li:before{content:'';position:absolute;left:0;top:1.1mm;width:3.6mm;height:3.6mm;border:1.2px solid var(--navy);border-radius:.8mm}
+.pill{display:inline-block;font-size:7.4pt;font-weight:700;letter-spacing:.3pt;padding:.6mm 2mm;border-radius:6pt;vertical-align:1pt}
+.pill.hot{background:#F8EAE7;color:var(--red)}.pill.warm{background:#F5EBD8;color:var(--amber)}
+.pill.cold{background:#EAF1F7;color:var(--blue)}.pill.junk{background:#F0EEE9;color:var(--faint)}
+.kv{font-size:8.7pt}
+.kv b{font-family:var(--m);font-weight:500;font-size:8.3pt}
+.tocrow{display:flex;gap:3mm;align-items:baseline;padding:2.2mm 0;border-bottom:1px solid var(--line-s);font-size:9.6pt}
+.tocrow .n{font-family:var(--m);color:var(--gold);font-size:8.6pt;width:7mm;flex-shrink:0}
+.tocrow .t{font-weight:500}
+.tocrow .d{color:var(--faint);font-size:8.4pt;margin-left:auto;text-align:right;max-width:78mm}
+</style></head><body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="cmark">X</div>
+  <div class="ctag">Implementation guide</div>
+  <h1>Real Estate Lead Automation on n8n</h1>
+  <p class="lede">From an ad click to a booked site visit, entirely over WhatsApp — with Google Sheets as the CRM, Claude grading every lead, and a live dashboard over the whole thing. Everything runs on your own machine.</p>
+  <div class="cbox">
+    <div><b>4 workflows</b>RE-00, RE-04, RE-05, RE-06<br>plus the CRM workbook and dashboard</div>
+    <div><b>~90 minutes</b>first-time setup<br>excluding Meta template review</div>
+    <div><b>Runs on</b>localhost:5678<br>tunnel needed for inbound</div>
+  </div>
+</div>
+
+<!-- ============ CONTENTS ============ -->
+<div class="chapter">
+<h2 class="ch">What you are building</h2>
+<p class="ch-sub">Read this page before touching anything — it is the whole system in one picture.</p>
+
+<div class="flow">Ad · campaign · app · website form
+        │   POST /webhook/lead-intake
+        ▼
+  Normalise → de-duplicate on phone → write to Google Sheets
+        │
+        ├─► Claude grades the lead     HOT · WARM · COLD · JUNK (timepass)
+        │
+        ▼
+  WhatsApp: "Welcome to XYZ Properties…"  +  three buttons
+        │
+        ├── [ View Details ]      → photos + price, config, carpet area, RERA
+        ├── [ Download Brochure ] → the project PDF as a WhatsApp document
+        ├── [ Schedule Visit ]    → live calendar slots → buyer taps one
+        │                            → Google Calendar event created
+        │                            → sales manager invited, emailed, WhatsApp'd
+        │                            → Visits tab + status = Visit Scheduled
+        └── anything else typed   → AI agent answers, then re-grades the lead
+
+  never replied?  →  follow-up engine, cadence set by that grade
+                     RE-05 WhatsApp 10:00 · RE-04 email 11:00
+
+  all of it visible in the dashboard, live, via RE-06</div>
+
+<h3>The five files you import</h3>
+<table>
+<tr><th style="width:34mm">File</th><th>What it does</th></tr>
+<tr><td><code>RE-00</code></td><td>Lead capture, the three-button WhatsApp menu, details, brochure, site-visit booking, the AI agent for free text, and AI lead grading. The main workflow.</td></tr>
+<tr><td><code>RE-05</code></td><td>WhatsApp follow-up engine. Daily sweep at 10:00 IST.</td></tr>
+<tr><td><code>RE-04</code></td><td>Email follow-up on the same cadence at 11:00 IST, plus the manager's morning pipeline digest at 08:30.</td></tr>
+<tr><td><code>RE-06</code></td><td>Read-only JSON feed that powers the dashboard.</td></tr>
+<tr><td><code>XYZ-Properties-CRM.xlsx</code></td><td>The Google Sheets workbook: Leads, Projects, Visits, Messages, plus a dashboard and field guide.</td></tr>
+</table>
+
+<h3>Order of operations</h3>
+<div class="tocrow"><span class="n">01</span><span class="t">Install and run n8n</span><span class="d">15 min</span></div>
+<div class="tocrow"><span class="n">02</span><span class="t">Open a tunnel so Meta can reach you</span><span class="d">5 min · required for inbound</span></div>
+<div class="tocrow"><span class="n">03</span><span class="t">Create the CRM spreadsheet</span><span class="d">10 min</span></div>
+<div class="tocrow"><span class="n">04</span><span class="t">Create the five credentials in n8n</span><span class="d">20 min</span></div>
+<div class="tocrow"><span class="n">05</span><span class="t">Import the workflows and fill in Config</span><span class="d">10 min</span></div>
+<div class="tocrow"><span class="n">06</span><span class="t">Submit the two WhatsApp templates to Meta</span><span class="d">10 min + review wait</span></div>
+<div class="tocrow"><span class="n">07</span><span class="t">Point Meta's webhook at your tunnel</span><span class="d">5 min</span></div>
+<div class="tocrow"><span class="n">08</span><span class="t">Test the whole flow locally</span><span class="d">15 min</span></div>
+<div class="tocrow"><span class="n">09</span><span class="t">Connect the dashboard</span><span class="d">5 min</span></div>
+<div class="tocrow"><span class="n">10</span><span class="t">Go live</span><span class="d">checklist on the last page</span></div>
+
+<div class="callout warn" style="margin-top:6mm">
+<h4>The one thing that trips everyone up</h4>
+<p>A buyer who filled in a form has <b>not</b> messaged you, so Meta's 24-hour customer-service window is closed and your first message <b>must</b> be a pre-approved template. Submit both templates (step 6) early — review can take anywhere from minutes to a day. Everything after the buyer's first tap is free-form and needs no approval.</p>
+</div>
+</div>
+
+<!-- ============ STEPS 1-3 ============ -->
+<div class="chapter">
+<h2 class="ch">Steps 1 – 3 · Machine, tunnel, CRM</h2>
+<p class="ch-sub">Get n8n running, make it reachable from the internet, and build the spreadsheet everything writes to.</p>
+
+<div class="step"><div class="stepno">1</div><div>
+<h4>Install and run n8n on localhost</h4>
+<p>Either works. Docker is easier to keep clean; npx is faster to try.</p>
+<pre><span class="c"># Docker — set WEBHOOK_URL to your tunnel host from step 2</span>
+docker run -it --rm -p 5678:5678 \
+  -e <b>WEBHOOK_URL</b>="https://your-subdomain.ngrok-free.app/" \
+  -e <b>GENERIC_TIMEZONE</b>="Asia/Kolkata" \
+  -v n8n_data:/home/node/.n8n n8nio/n8n
+
+<span class="c"># or, with Node 20+ installed</span>
+npx n8n</pre>
+<p>Open <code>http://localhost:5678</code> and create the owner account. Leave it running.</p>
+<div class="callout"><p><b>Why <code>WEBHOOK_URL</code> matters.</b> Without it, n8n prints webhook URLs starting <code>http://localhost:5678</code>. Meta cannot call those. Set it to the tunnel host and the URLs n8n shows you are the ones you can actually paste into Meta.</p></div>
+</div></div>
+
+<div class="step"><div class="stepno">2</div><div>
+<h4>Open a tunnel</h4>
+<p>Meta's servers must reach your machine over public HTTPS. Localhost is not reachable, and there is no way around it.</p>
+<pre>ngrok http 5678        <span class="c"># or: cloudflared tunnel --url http://localhost:5678</span></pre>
+<p>Copy the <code>https://….ngrok-free.app</code> address. That host replaces <code>localhost:5678</code> in every URL you give Meta.</p>
+<div class="callout warn"><p><b>The free ngrok URL changes every restart.</b> When it does, update <code>WEBHOOK_URL</code>, restart n8n, and re-save the callback URL in Meta. A reserved domain or cloudflared removes this chore — worth it before a client demo.</p></div>
+</div></div>
+
+<div class="step"><div class="stepno">3</div><div>
+<h4>Create the CRM spreadsheet</h4>
+<p>Everything lives in one workbook, <code>XYZ-Properties-CRM.xlsx</code>.</p>
+<ol>
+<li>Put the file in Google Drive → right-click → <b>Open with → Google Sheets</b> → <b>File → Save as Google Sheets</b>.</li>
+<li>Copy the ID out of the URL: <code>docs.google.com/spreadsheets/d/</code><b>THIS-PART</b><code>/edit</code>.</li>
+<li>Open the <b>Projects</b> tab and replace the two shaded example rows with your real projects.</li>
+<li>Share the sheet with the Google account n8n will authenticate as, with <b>Editor</b> access.</li>
+</ol>
+<table>
+<tr><th style="width:26mm">Tab</th><th>Who writes it</th><th>Notes</th></tr>
+<tr><td><b>Leads</b></td><td>n8n</td><td>One row per buyer, matched on <code>phone</code>. Yours to edit: <code>owner</code>, <code>notes</code>.</td></tr>
+<tr><td><b>Projects</b></td><td><b>You</b></td><td>The only tab you fill in. Every word the bot says about a property is read from here.</td></tr>
+<tr><td><b>Visits</b></td><td>n8n</td><td>One row per booked site visit.</td></tr>
+<tr><td><b>Messages</b></td><td>n8n</td><td>Full inbound/outbound log.</td></tr>
+<tr><td>Dashboard · Field guide</td><td>—</td><td>Live formulas, and what every column means.</td></tr>
+</table>
+<div class="callout stop">
+<h4>Two rules that silently break everything</h4>
+<p><b>Never rename or reorder a column, and keep row 1 as the header.</b> The workflows map to headers by name — a renamed column just stops being written, with no error.</p>
+<p><b>Image and brochure links must be public direct links.</b> Meta fetches them server-side. A Google Drive "share" link returns an HTML page, not a file, and the send fails.</p>
+</div>
+</div></div>
+</div>
+
+<!-- ============ STEP 4-5 ============ -->
+<div class="chapter">
+<h2 class="ch">Steps 4 – 5 · Credentials and workflows</h2>
+<p class="ch-sub">Five credentials, four imports, one Config node each.</p>
+
+<div class="step"><div class="stepno">4</div><div>
+<h4>Create the credentials</h4>
+<p>In n8n: <b>Credentials → Add credential</b>. Create all five before importing, so the imported nodes can find them.</p>
+<table>
+<tr><th style="width:42mm">Credential</th><th>Where the values come from</th></tr>
+<tr><td><b>WhatsApp API</b></td><td>Meta → your app → WhatsApp → API Setup. You need the permanent access token and the Business Account ID. Used by every outbound message.</td></tr>
+<tr><td><b>WhatsApp OAuth / Trigger</b></td><td>App ID and App Secret from the same Meta app. Used only by the inbound trigger, which also handles Meta's verification handshake.</td></tr>
+<tr><td><b>Google Sheets OAuth2</b></td><td>Google Cloud console → OAuth client. Sign in as the account the sheet is shared with.</td></tr>
+<tr><td><b>Google Calendar OAuth2</b></td><td>Same project, Calendar API enabled.</td></tr>
+<tr><td><b>Anthropic</b></td><td>An API key from the Claude console. Powers grading, the free-text agent and follow-up copy.</td></tr>
+</table>
+<div class="callout ok"><p><b>No secret is stored inside the workflow files.</b> Every WhatsApp and Claude HTTP node uses n8n's <i>Predefined Credential Type</i>, so tokens live in n8n's credential store and the JSON stays safe to email, commit or hand to a client.</p></div>
+</div></div>
+
+<div class="step"><div class="stepno">5</div><div>
+<h4>Import the workflows and fill in Config</h4>
+<p><b>Workflows → ⋯ → Import from File</b>, once per file. Then open the <b>Config</b> node in each and set the values. Config is the only node you need to edit.</p>
+<table>
+<tr><th style="width:52mm">Field</th><th>Example</th><th style="width:24mm">In</th></tr>
+<tr><td><code>COMPANY_NAME</code></td><td>XYZ Properties</td><td>all</td></tr>
+<tr><td><code>SHEET_ID</code></td><td>the ID from step 3</td><td>all</td></tr>
+<tr><td><code>WA_PHONE_NUMBER_ID</code></td><td>Meta → WhatsApp → API Setup</td><td>00, 05, 06</td></tr>
+<tr><td><code>CALENDAR_ID</code></td><td><code>primary</code> or the site-visit calendar</td><td>00</td></tr>
+<tr><td><code>SALES_MANAGER_EMAIL</code> / <code>_WHATSAPP</code></td><td>who receives the visit</td><td>all</td></tr>
+<tr><td><code>USE_APPROVED_TEMPLATE</code></td><td><code>true</code> live, <code>false</code> only for testing</td><td>00</td></tr>
+<tr><td><code>CLAUDE_MODEL</code></td><td><code>claude-opus-5</code></td><td>00, 04, 05</td></tr>
+<tr><td><code>BOOKING_START_HOUR</code> / <code>_END_HOUR</code></td><td><code>10</code> / <code>18</code> — site office hours</td><td>00</td></tr>
+<tr><td><code>VISIT_DURATION_MIN</code></td><td><code>45</code></td><td>00</td></tr>
+<tr><td>Cadence and <code>MAX_FOLLOWUPS</code></td><td><code>3 / 5 / 21</code> and <code>6</code></td><td>04, 05, 06</td></tr>
+<tr><td><code>DASHBOARD_KEY</code></td><td>any string you choose</td><td>06</td></tr>
+</table>
+<div class="callout stop"><p><b>Keep the cadence numbers identical in RE-04, RE-05 and RE-06.</b> The two follow-up engines avoid double-messaging by sharing <code>last_touch</code> and running an hour apart. If their numbers drift, that protection stops working and buyers get two messages the same morning. RE-06 uses the same numbers to predict the queue — if it disagrees, the dashboard lies.</p></div>
+<p>Finally, switch each workflow to <b>Active</b>.</p>
+</div></div>
+</div>
+
+<!-- ============ STEP 6-7 ============ -->
+<div class="chapter">
+<h2 class="ch">Steps 6 – 7 · WhatsApp templates and the webhook</h2>
+<p class="ch-sub">The only part that depends on someone else's approval queue. Do it early.</p>
+
+<div class="step"><div class="stepno">6</div><div>
+<h4>Submit the two templates</h4>
+<p>Meta Business Manager → <b>WhatsApp Manager → Message Templates → Create</b>.</p>
+
+<h4 style="margin-top:5mm">Template A — the welcome menu</h4>
+<table>
+<tr><td style="width:30mm"><b>Name</b></td><td><code>lead_welcome_menu</code></td></tr>
+<tr><td><b>Category</b></td><td>Marketing (or Utility)</td></tr>
+<tr><td><b>Language</b></td><td><code>en</code></td></tr>
+<tr><td><b>Body</b></td><td>Hi {{1}}, welcome to {{2}}! Thanks for your interest in {{3}}. I can share the full details and photos, send you the brochure, or book a site visit at a time that suits you.</td></tr>
+<tr><td><b>Buttons</b></td><td>Quick Reply × 3, <b>in this exact order</b>: <code>View Details</code> · <code>Download Brochure</code> · <code>Schedule Visit</code></td></tr>
+</table>
+
+<h4 style="margin-top:5mm">Template B — the follow-up</h4>
+<table>
+<tr><td style="width:30mm"><b>Name</b></td><td><code>followup_update</code></td></tr>
+<tr><td><b>Category</b></td><td>Marketing</td></tr>
+<tr><td><b>Body</b></td><td>Hi {{1}}, an update on {{2}}: {{3}}</td></tr>
+<tr><td><b>Buttons</b></td><td>Quick Reply × 3, same three, same order</td></tr>
+</table>
+
+<div class="callout warn"><p><b>Button order is not cosmetic.</b> The workflows send payloads against button <i>index</i> 0, 1 and 2 — <code>VIEW_DETAILS</code>, <code>DOWNLOAD_BROCHURE</code>, <code>BOOK_VISIT</code>. Reorder the buttons in Meta and taps will trigger the wrong branch.</p></div>
+<div class="callout"><p>Claude writes only <code>{{3}}</code> in the follow-up. The template text itself never changes, so it stays approved forever while every message still says something new.</p></div>
+</div></div>
+
+<div class="step"><div class="stepno">7</div><div>
+<h4>Point Meta at your inbound webhook</h4>
+<ol>
+<li>In n8n, open RE-00 → the <b>WhatsApp Message Received</b> node → copy its <b>Production URL</b>.</li>
+<li>Replace <code>localhost:5678</code> in that URL with your tunnel host.</li>
+<li>Meta app → <b>WhatsApp → Configuration → Callback URL</b> = that URL. Verify token = the one in your n8n WhatsApp Trigger credential.</li>
+<li>Press <b>Verify and save</b>, then <b>subscribe to the <code>messages</code> field</b>. Nothing arrives without that subscription.</li>
+</ol>
+<div class="callout stop"><p><b>Verification fails?</b> Nine times out of ten the workflow is not Active, the tunnel is down, or the verify token does not match the credential exactly. Meta's error message is the same for all three.</p></div>
+</div></div>
+</div>
+
+<!-- ============ STEP 8-9 ============ -->
+<div class="chapter">
+<h2 class="ch">Steps 8 – 9 · Test it, then watch it</h2>
+<p class="ch-sub">Prove each stage works on your own number before any real lead arrives.</p>
+
+<div class="step"><div class="stepno">8</div><div>
+<h4>Test the whole flow locally</h4>
+<p>Open <code>test/lead-form.html</code> in a browser, or drive it from the terminal:</p>
+<pre><span class="c"># 1 · a lead from a campaign — writes the CRM, grades it, sends the menu</span>
+curl -X POST http://localhost:5678/webhook/lead-intake \
+  -H 'content-type: application/json' \
+  -d '{"name":"Rohan","phone":"<b>91XXXXXXXXXX</b>","email":"you@example.com",
+       "project":"XYZ Skyline Residences","source":"meta_ads","budget":"1.2 Cr"}'
+
+<span class="c"># 2 · simulate each button without Meta wired up at all</span>
+curl -X POST http://localhost:5678/webhook/simulate \
+  -H 'content-type: application/json' \
+  -d '{"phone":"<b>91XXXXXXXXXX</b>","action":"VIEW_DETAILS"}'
+
+<span class="c"># actions: VIEW_DETAILS · DOWNLOAD_BROCHURE · BOOK_VISIT</span>
+<span class="c">#          SLOT|&lt;ISO datetime&gt; · or {"text":"kya price hai?"}</span>
+
+<span class="c"># 3 · run the whole script</span>
+bash test/curl-examples.sh</pre>
+<div class="callout"><p>The <code>/simulate</code> endpoint fakes the <i>tap</i>, not the send — real WhatsApp messages still go out, so use your own number. While a workflow canvas is open in <b>Test</b> mode the paths are <code>/webhook-test/…</code>; once <b>Active</b> they are <code>/webhook/…</code>.</p></div>
+<h4>What to check after each test</h4>
+<ul>
+<li>A row appeared in <b>Leads</b> with a grade and a score.</li>
+<li>The WhatsApp menu arrived with three buttons.</li>
+<li><b>View Details</b> sent photos, then a summary with two buttons.</li>
+<li><b>Download Brochure</b> delivered a real PDF, not the apology message.</li>
+<li><b>Schedule Visit</b> offered three slots that are genuinely free on the calendar.</li>
+<li>Tapping a slot created the calendar event, invited the sales manager, and added a <b>Visits</b> row.</li>
+</ul>
+</div></div>
+
+<div class="step"><div class="stepno">9</div><div>
+<h4>Connect the dashboard</h4>
+<ol>
+<li>Make sure <b>RE-06</b> is imported, its <code>SHEET_ID</code> and <code>DASHBOARD_KEY</code> are set, and it is <b>Active</b>.</li>
+<li>Open <code>dashboard/index.html</code> in a browser — double-click it, or serve the folder:
+<pre>cd dashboard &amp;&amp; python3 -m http.server 8080   <span class="c"># then open http://localhost:8080</span></pre></li>
+<li>Click <b>Connection</b> and enter the webhook URL and the same key:
+<pre>http://localhost:5678/webhook/dashboard-data</pre></li>
+<li>The pill in the top right turns green and shows the last refresh time. It re-reads every 30 seconds.</li>
+</ol>
+<div class="callout"><p>Settings live in that browser's local storage only — nothing is sent anywhere, and each person who opens the file sets their own.</p></div>
+<div class="callout warn"><p><b>Do not publish this page on the public internet.</b> It reads your whole CRM through a key in a query string, which is fine on a laptop and not fine on a public URL. If you need remote access, put it behind your own auth or a VPN.</p></div>
+</div></div>
+</div>
+
+<!-- ============ REFERENCE ============ -->
+<div class="chapter">
+<h2 class="ch">How the follow-up engine decides</h2>
+<p class="ch-sub">The rules RE-04, RE-05 and the dashboard all share. Worth explaining to the client in these words.</p>
+
+<h3>Cadence by grade</h3>
+<table>
+<tr><th>Grade</th><th>Meaning</th><th>Cadence</th><th>6 follow-ups spans</th></tr>
+<tr><td><span class="pill hot">HOT</span></td><td>Stated budget that matches, visit interest, possession urgency, pre-approved loan</td><td>every 3 days</td><td>about 3 weeks</td></tr>
+<tr><td><span class="pill warm">WARM</span></td><td>Genuine interest, vague on budget or timeline</td><td>every 5 days</td><td>about 1 month</td></tr>
+<tr><td><span class="pill cold">COLD</span></td><td>Early browsing, out of budget, out of city, price curiosity</td><td>every 21 days</td><td>about 4 months</td></tr>
+<tr><td><span class="pill junk">JUNK</span></td><td>Timepass: prank entries, gibberish, job seekers, vendor pitches, competitors, brokers</td><td>never</td><td>—</td></tr>
+</table>
+
+<div class="callout">
+<h4>It is 6 touches, not 6 days</h4>
+<p>The gap between them depends on the grade, and the cap is a <b>safety stop, not a target</b>. Most leads book, reply, or get marked Lost long before touch 6. A HOT lead who has ignored six messages over three weeks is not hot any more — a human should take over, or the grade should drop.</p>
+</div>
+
+<h3>Who is skipped, and why</h3>
+<table>
+<tr><th style="width:38mm">Skipped</th><th>Reason</th></tr>
+<tr><td><code>Booked</code> <code>Lost</code> <code>Dropped</code></td><td>Finished. Never touched again.</td></tr>
+<tr><td><code>Engaged</code>, conversation still live</td><td>A buyer who just replied is mid-conversation. A scheduled nudge landing on top of a live chat is the single most embarrassing failure this system can have. They resume automatically once quiet for <code>CONVERSATION_HOLD_HOURS</code> (default 72) — a permanent skip would drop everyone who ever replied out of nurture for good.</td></tr>
+<tr><td>At the cap</td><td>6 automated follow-ups sent. Handed to a human.</td></tr>
+<tr><td>No WhatsApp number (RE-05) / no email (RE-04)</td><td>Nothing to send to.</td></tr>
+</table>
+
+<h3>Three details that matter more than they look</h3>
+<div class="grid2">
+<div class="card"><h4>followup_count, not touch_count</h4><p>The cap counts <i>automated follow-ups only</i>. <code>touch_count</code> also rises on every button tap, so capping on it would lock an engaged buyer out of nurture after six taps. Replying resets the counter to zero — someone who re-engages earns a fresh sequence.</p></div>
+<div class="card"><h4>The write-back is the whole safety mechanism</h4><p><code>Update Touch Count</code> sets <code>last_touch</code> to now, so tomorrow's sweep skips the lead until the interval passes. If it failed silently the same buyer would be messaged <b>every single day</b> — worse than the workflow not running. So it retries three times and then emails the manager the exact row to fix.</p></div>
+<div class="card"><h4>Claude writes every message fresh</h4><p>A fixed template is simpler, but follow-up 5 saying what follow-up 2 said is why nurture sequences get muted. Each message must carry one new reason to reply — a unit released, a possession update, a loan offer — escalating <i>value</i>, not pressure. "Just following up" is banned outright.</p></div>
+<div class="card"><h4>One predictable window</h4><p>A lead due at 2pm is not messaged until the next morning. That is deliberate: all outbound lands in one window rather than pinging buyers at random hours, and a failed cron delays messages by a day instead of losing them.</p></div>
+</div>
+
+<div class="callout ok"><p><b>These numbers are tunable and should be reviewed after a month of real data.</b> Say that to the client — it signals you thought about their brand, not just the automation. Everything is in the <code>Config</code> node; change it in all three workflows together.</p></div>
+</div>
+
+<!-- ============ TROUBLESHOOTING ============ -->
+<div class="chapter">
+<h2 class="ch">When something does not work</h2>
+<p class="ch-sub">Ordered by how often it actually happens.</p>
+
+<table>
+<tr><th style="width:52mm">Symptom</th><th>Cause and fix</th></tr>
+<tr><td>Lead saved, no WhatsApp arrives</td><td>Almost always the 24-hour window. Either <code>USE_APPROVED_TEMPLATE</code> is <code>false</code> for a number that has not messaged you, or the template is not approved yet. Open the failed node's output — Meta's error names the reason.</td></tr>
+<tr><td>Meta webhook verification fails</td><td>Workflow not Active, tunnel down, or the verify token does not match the n8n credential exactly.</td></tr>
+<tr><td>Buttons arrive but taps do nothing</td><td>You did not subscribe to the <code>messages</code> field in Meta, or the tunnel URL changed since you saved the callback.</td></tr>
+<tr><td>Photos or brochure never arrive</td><td>The URL in the Projects tab is not publicly fetchable. Drive share links return HTML. Test by opening the link in a private browser window — you should get the file itself.</td></tr>
+<tr><td>Nothing is written to Sheets</td><td><code>SHEET_ID</code> wrong, sheet not shared with the n8n Google account as Editor, or a column was renamed.</td></tr>
+<tr><td>Everything is graded WARM with a flag</td><td><code>ai_grading_unavailable</code> means the Claude call failed — bad key, no credit, or no network. The lead is deliberately still saved.</td></tr>
+<tr><td>A lead is messaged twice in a morning</td><td>The cadence numbers in RE-04 and RE-05 have drifted apart, or RE-04's cron is no longer after RE-05's. Both must match.</td></tr>
+<tr><td>A lead is messaged every day</td><td>The write-back is failing. Check the manager's inbox for the CRM write-back alert; it names the row and the fix.</td></tr>
+<tr><td><code>$vars</code> is empty</td><td><code>$vars</code> is an Enterprise feature. These workflows deliberately use a <code>Config</code> node instead — if you added a <code>$vars</code> expression yourself, move it into Config.</td></tr>
+<tr><td>Dashboard says "Cannot reach n8n"</td><td>RE-06 not Active, wrong URL, or n8n stopped. An inactive workflow only answers on <code>/webhook-test/</code>, and only while its canvas is open.</td></tr>
+<tr><td>Dashboard says "n8n rejected the key"</td><td>Good news — the connection works. The key just does not match <code>DASHBOARD_KEY</code> in RE-06's Config.</td></tr>
+<tr><td>Slots offered are already booked</td><td><code>CALENDAR_ID</code> points at a different calendar from the one holding the events.</td></tr>
+</table>
+
+<h3>Where to look first, always</h3>
+<p>n8n's <b>Executions</b> list. Every run is there with the exact input and output of every node. A red execution tells you which node failed and why in one click — faster than any guess in this table.</p>
+
+<h2 class="ch" style="margin-top:12mm">Go-live checklist</h2>
+<p class="ch-sub">Everything below should be true before the first real ad spend.</p>
+<ul class="check">
+<li>Both WhatsApp templates show <b>Approved</b> in Meta.</li>
+<li><code>USE_APPROVED_TEMPLATE</code> is <code>true</code> in RE-00.</li>
+<li>All four workflows are <b>Active</b>.</li>
+<li>The tunnel is on a stable domain, and <code>WEBHOOK_URL</code> matches it.</li>
+<li>Meta's callback URL is verified and subscribed to <code>messages</code>.</li>
+<li>Every project in the Projects tab has a price, photos and a public brochure link.</li>
+<li>The dashboard's Automation health page shows no warnings.</li>
+<li>A test lead on your own number completed all three buttons end to end.</li>
+<li>A test site visit appeared on the sales manager's calendar and in their inbox.</li>
+<li>Cadence numbers are identical in RE-04, RE-05 and RE-06.</li>
+<li>The sales manager knows what the at-the-cap list is and checks it.</li>
+<li>Someone owns the Projects tab and keeps it current.</li>
+</ul>
+
+<div class="callout ok" style="margin-top:8mm">
+<h4>After the first month</h4>
+<p>Review three things with real data: the cadence intervals, the 6-touch cap, and how Claude is grading. The dashboard's source table shows which channels actually convert — that is usually the first budget decision the client makes off the back of this system.</p>
+</div>
+</div>
+</body></html>
