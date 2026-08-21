@@ -8,7 +8,8 @@ One n8n workflow that takes a lead from **any ad, campaign, app or website form*
 | File | What it is |
 |---|---|
 | [`workflows/RE-00_lead_to_whatsapp_buttons_to_site_visit.json`](workflows/RE-00_lead_to_whatsapp_buttons_to_site_visit.json) | capture → WhatsApp menu → details / brochure / site visit, plus the AI agent for free text and AI lead grading |
-| [`workflows/RE-05_followup_engine.json`](workflows/RE-05_followup_engine.json) | the daily follow-up sweep for leads who never replied |
+| [`workflows/RE-05_followup_engine.json`](workflows/RE-05_followup_engine.json) | the daily **WhatsApp** follow-up sweep for leads who never replied |
+| [`workflows/RE-04_email_followup_and_manager_digest.json`](workflows/RE-04_email_followup_and_manager_digest.json) | the **email** follow-up arm on the same cadence, plus the manager's morning digest |
 
 ---
 
@@ -247,6 +248,34 @@ is not messaged until 10am the next day. That is deliberate: all outbound lands 
 window instead of pinging buyers at random hours, and one cron failure delays messages by a day
 rather than losing them permanently.
 
+### Running RE-04 and RE-05 together
+
+RE-04 is the email arm of the same engine. It shares the cadence, the skip list, the
+`followup_count` cap and the write-back guarantees, and it sweeps at **11:00 IST — one hour after
+RE-05**.
+
+Three things keep them from double-messaging the same buyer:
+
+1. **They share `last_touch`.** RE-05 writes it at 10:00, so by 11:00 anyone it messaged is no longer
+   due and RE-04 skips them on the cadence check alone.
+2. **`Already followed up today?`** RE-04 also compares `last_followup_at` against today's date in
+   IST. This catches the case the clock cannot: RE-05 sent the message but its write-back failed, so
+   `last_touch` is still stale. Verified against exactly that scenario.
+3. **RE-04 needs an email address.** Leads with a WhatsApp number but no email were never its
+   audience anyway.
+
+Run RE-04 standalone and none of this changes anything — the guard simply never fires.
+
+**Keep the two Config nodes in step.** If RE-04's cadence drifts from RE-05's, the de-duplication
+stops working and buyers get two messages the same morning.
+
+**Also fixed in RE-04 while porting:** `$vars` replaced with a Config node (`$vars` is an Enterprise
+feature and silently resolves to nothing on community n8n); the SLA breach counter now measures real
+minutes against `SLA_MINUTES` instead of `> 0.02 days`, which was 29 minutes, not 15; the dead
+`globalThis.__stats` hand-off removed; structured outputs replace the "reply with RAW JSON ONLY"
+prompt and its regex-and-try/catch parser; and the digest now reports the statuses this system
+actually produces — in-conversation, nurturing, at-cap, visits booked, junk by source.
+
 **Tuning.** Open RE-05's `Config` node — `CADENCE_HOT_DAYS`, `CADENCE_WARM_DAYS`, `CADENCE_COLD_DAYS`,
 `MAX_FOLLOWUPS`, `CONVERSATION_HOLD_HOURS`, `DAILY_SEND_CAP`. These are a starting point, not a law;
 review them after a month of real data. Worth saying out loud to the client — it signals you have
@@ -268,6 +297,7 @@ thought about their brand, not just the automation.
 | Slot chosen | `Create Site Visit Event` → `Append Visit to CRM` → `Mark Lead as Visit Scheduled` → `WA - Visit Confirmation to Buyer` → `WA - Notify Sales Manager` → `Email Visit to Sales Manager` |
 | Free text | `Sales AI Agent` (+ Claude model, memory, `project_knowledge`, `check_availability`, `escalate_to_human`) → `WA - Send AI Reply` → `Claude - Re-grade Lead` → `Parse New Grade` → `Grade Changed?` → `Update Grade in CRM` |
 | Agent failure | `WA - Send Main Menu` → `Log Outbound Reply` |
+| RE-04 | `Daily 11am IST` / `Daily 8:30am IST` → `Job - …` → `Config` → `Which Job?` → (follow-ups) `Read Full Pipeline` → `Find Follow-Ups Due` → `Claude - Write Follow-Up` → `Parse Message` → `Copy Usable?` → `Send Follow-Up` → `Actually Delivered?` → `Update Touch Count` → `Log Follow-Up`; (digest) `Read Pipeline for Digest` → `Build Digest` → `Email Manager Digest` |
 | RE-05 | `Daily 10am IST` → `Config` → `Read Full Pipeline` → `Find Follow-Ups Due` → `Claude - Write Follow-Up` → `Sanitise Template Variable` → `WA - Send Follow-Up Template` → `Actually Delivered?` → `Update Touch Count` → `Log Follow-Up` → `Email Sweep Summary` (error output → `Alert - CRM Write-Back Failed`) |
 
 ### Behaviour worth knowing
@@ -290,6 +320,5 @@ This file is the front end. The workflows you already have slot in behind it, al
 * **RE-02** — your standalone conversational agent. RE-00 now has one built in, so run RE-02 only if
   you still need the web-chat endpoint.
 * **RE-03** — T-24h / T-2h visit reminders and post-visit feedback (reads the same calendar & `Visits` tab)
-* **RE-04** — superseded by **RE-05** for follow-ups (RE-04 is email-first, 2-day HOT cadence, 12-touch
-  cap, and does not skip live conversations). Keep RE-04 only for its manager's daily pipeline digest,
-  and if you run both, apply the same skip list and cadence there or leads get messaged twice.
+* **RE-04** — now the email arm of the same follow-up engine (same cadence, same skip list, one hour
+  behind RE-05) plus the manager's morning digest. See *Running RE-04 and RE-05 together* above.

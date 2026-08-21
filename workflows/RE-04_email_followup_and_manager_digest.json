@@ -1,0 +1,782 @@
+{
+  "name": "RE-04 Email Follow-Up + Manager Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## SAME CADENCE AS RE-05, ONE HOUR LATER\nHOT every 3 days, WARM every 5, COLD every 21, JUNK never. Hard stop at 6 automated follow-ups. Skips Booked / Lost / Dropped, and Engaged while the conversation is still live.\n\nThis is the EMAIL arm. RE-05 is the WhatsApp arm and sweeps at 10:00 IST; this runs at 11:00 IST and both write last_touch, so by the time this reads the sheet anyone RE-05 already messaged is no longer due.\n\nThe clock is not the only guard: `Already Followed Up Today?` re-checks last_followup_at in code, so a slow or half-failed RE-05 run still cannot cause a double message. Run this standalone and that guard simply never fires.",
+        "height": 380,
+        "width": 460,
+        "color": 4
+      },
+      "id": "note-cadence",
+      "name": "Note - Shared Cadence",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1500,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## ONE CONFIG, TWO JOBS\nBoth crons pass through the same Config node so there is only ever one place to edit settings. The tiny `Job - ...` nodes upstream tag which branch should run.\n\nKeep the cadence numbers identical to RE-05's Config node - if they drift, the two engines stop de-duplicating each other.",
+        "height": 260,
+        "width": 400,
+        "color": 3
+      },
+      "id": "note-config",
+      "name": "Note - Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1000,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 5 * * *"
+            }
+          ]
+        },
+        "notes": "05:30 UTC = 11:00 IST - deliberately one hour after RE-05's WhatsApp sweep."
+      },
+      "id": "cron-morning",
+      "name": "Daily 11am IST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1440,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "j1",
+              "name": "job",
+              "value": "followups",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "job-fu",
+      "name": "Job - Follow-Ups",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1220,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 3 * * *"
+            }
+          ]
+        },
+        "notes": "03:00 UTC = 08:30 IST"
+      },
+      "id": "cron-digest",
+      "name": "Daily 8:30am IST",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1440,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "j2",
+              "name": "job",
+              "value": "digest",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      },
+      "id": "job-dg",
+      "name": "Job - Digest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1220,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e1",
+              "name": "COMPANY_NAME",
+              "value": "XYZ Properties",
+              "type": "string"
+            },
+            {
+              "id": "e2",
+              "name": "SHEET_ID",
+              "value": "PUT_YOUR_GOOGLE_SHEET_ID_HERE",
+              "type": "string"
+            },
+            {
+              "id": "e3",
+              "name": "SALES_MANAGER_EMAIL",
+              "value": "sales.manager@example.com",
+              "type": "string"
+            },
+            {
+              "id": "e4",
+              "name": "CLAUDE_MODEL",
+              "value": "claude-opus-5",
+              "type": "string"
+            },
+            {
+              "id": "e5",
+              "name": "TIMEZONE",
+              "value": "Asia/Kolkata",
+              "type": "string"
+            },
+            {
+              "id": "e6",
+              "name": "CADENCE_HOT_DAYS",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "e7",
+              "name": "CADENCE_WARM_DAYS",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "e8",
+              "name": "CADENCE_COLD_DAYS",
+              "value": 21,
+              "type": "number"
+            },
+            {
+              "id": "e9",
+              "name": "MAX_FOLLOWUPS",
+              "value": 6,
+              "type": "number"
+            },
+            {
+              "id": "e10",
+              "name": "CONVERSATION_HOLD_HOURS",
+              "value": 72,
+              "type": "number"
+            },
+            {
+              "id": "e11",
+              "name": "DAILY_SEND_CAP",
+              "value": 200,
+              "type": "number"
+            },
+            {
+              "id": "e12",
+              "name": "SLA_MINUTES",
+              "value": 15,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "cfg",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1000,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "job",
+              "leftValue": "={{ $json.job }}",
+              "rightValue": "followups",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-job",
+      "name": "Which Job?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -780,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "sheets-all",
+      "name": "Read Full Pipeline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -540,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Same cadence maths as RE-05, on the email channel.\n// Days between last_touch and now, compared against the interval for the lead's grade.\nconst cfg = $('Config').first().json;\nconst CADENCE = {\n  HOT: Number(cfg.CADENCE_HOT_DAYS),\n  WARM: Number(cfg.CADENCE_WARM_DAYS),\n  COLD: Number(cfg.CADENCE_COLD_DAYS),\n  JUNK: 999\n};\nconst MAX_FOLLOWUPS = Number(cfg.MAX_FOLLOWUPS);\nconst HOLD_HOURS = Number(cfg.CONVERSATION_HOLD_HOURS);\nconst CAP = Number(cfg.DAILY_SEND_CAP);\nconst TZ = cfg.TIMEZONE || 'Asia/Kolkata';\nconst STOPPED = ['Booked', 'Lost', 'Dropped'];\nconst now = Date.now();\nconst ms = (v) => new Date(v || 0).getTime() || 0;\nconst istDay = (v) => v ? new Date(v).toLocaleDateString('en-CA', { timeZone: TZ }) : '';\nconst today = new Date().toLocaleDateString('en-CA', { timeZone: TZ });\n\nconst due = [];\nconst skipped = { stopped: 0, in_conversation: 0, capped: 0, not_due: 0, no_email: 0, junk: 0, already_today: 0 };\n\nfor (const l of $input.all().map(i => i.json)) {\n  const status = String(l.status || 'New').trim();\n\n  // 1. Finished leads are never touched again.\n  if (STOPPED.includes(status)) { skipped.stopped++; continue; }\n\n  // 2. Never talk over a live conversation. RE-00 sets Engaged the moment a buyer replies.\n  //    Once they have been quiet for HOLD_HOURS the conversation is over and nurture resumes -\n  //    a permanent Engaged skip would drop everyone who ever replied out of nurture for good.\n  if (status === 'Engaged') {\n    const quietHours = (now - ms(l.last_inbound_at || l.last_touch)) / 3600000;\n    if (quietHours < HOLD_HOURS) { skipped.in_conversation++; continue; }\n  }\n\n  // 3. Hard stop, counting AUTOMATED follow-ups only - not button taps.\n  const sent = Number(l.followup_count || 0);\n  if (sent >= MAX_FOLLOWUPS) { skipped.capped++; continue; }\n\n  // 4. RE-05 sweeps WhatsApp an hour earlier and writes last_touch, so an already-messaged lead\n  //    is normally no longer due by now. This is the belt-and-braces check for the case where\n  //    RE-05 ran late, partially failed, or overlapped this run.\n  if (istDay(l.last_followup_at) === today) { skipped.already_today++; continue; }\n\n  // 5. Cadence by grade.\n  const grade = String(l.grade || 'WARM').toUpperCase();\n  if (grade === 'JUNK') { skipped.junk++; continue; }\n  const interval = CADENCE[grade] ?? CADENCE.WARM;\n  const days = (now - ms(l.last_touch || l.created_at)) / 86400000;\n  if (days < interval) { skipped.not_due++; continue; }\n\n  // 6. This is the email arm.\n  const email = String(l.email || '').trim();\n  if (!email || !email.includes('@')) { skipped.no_email++; continue; }\n\n  due.push({\n    ...l,\n    email,\n    grade,\n    cadence_days: interval,\n    days_since_touch: Math.floor(days),\n    followup_number: sent + 1,\n    max_followups: MAX_FOLLOWUPS,\n    resumed_after_conversation: status === 'Engaged'\n  });\n}\n\n// Longest-ignored first, so nobody starves if the daily cap bites.\ndue.sort((a, b) => b.days_since_touch - a.days_since_touch);\nconst send = due.slice(0, CAP);\nskipped.over_daily_cap = due.length - send.length;\nreturn send.map(l => ({ json: { ...l, sweep: { due: due.length, sending: send.length, skipped } } }));"
+      },
+      "id": "fn-due",
+      "name": "Find Follow-Ups Due",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        180
+      ],
+      "notes": "Returns nothing when nobody is due, so the rest of the branch simply does not run."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "anthropic-beta",
+              "value": "server-side-fallback-2026-07-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: $('Config').first().json.CLAUDE_MODEL,\n  max_tokens: 3000,\n  fallbacks: 'default',\n  output_config: {\n    effort: 'medium',\n    format: { type: 'json_schema', schema: {\n      type: 'object',\n      properties: {\n        subject: { type: 'string' },\n        email_html: { type: 'string' },\n        internal_note: { type: 'string' }\n      },\n      required: ['subject', 'email_html', 'internal_note'],\n      additionalProperties: false\n    } }\n  },\n  system: 'You write follow-up emails for an Indian real estate sales team.\\n\\nEvery follow-up must carry ONE genuinely new reason to reply: a new unit or floor released, a price or possession update, a bank pre-approval or subvention offer, a weekend open house, a construction milestone, or a specific useful question. Never write \"just following up\", \"gentle reminder\", \"checking in\", or \"did you get my email\".\\n\\nEscalate VALUE as the follow-up number rises, never pressure. Follow-up 5 should be the most useful message you have sent, not the most desperate one. Do not invent a hard fact you were not given - prefer a real question or an honest offer over a fabricated price cut or a fake deadline.\\n\\nMatch the grade: HOT gets specifics and a clear next step, WARM gets useful information, COLD gets low-commitment value.\\n\\nsubject is under 60 characters and never starts with Re:. email_html is under 120 words of simple HTML - p, b, a and br only, no styles, no images, no tracking. Sign off as the sales team, no fake personal name. internal_note is one short line for the sales manager explaining the angle you chose.',\n  messages: [ { role: 'user', content: 'Follow-up ' + $json.followup_number + ' of ' + $json.max_followups + '\\nName: ' + $json.name + '\\nProject: ' + $json.project + '\\nGrade: ' + $json.grade + '\\nScore: ' + ($json.score || 'n/a') + '\\nBudget: ' + ($json.budget || 'unknown') + '\\nConfiguration: ' + ($json.configuration || 'unknown') + '\\nTimeline: ' + ($json.timeline || 'unknown') + '\\nSource: ' + $json.source + '\\nDays since last contact: ' + $json.days_since_touch + '\\nLast action they took: ' + ($json.last_action || 'none') + '\\nOriginal enquiry: ' + ($json.message || 'none') + '\\nWhat we know: ' + ($json.ai_summary || 'nothing yet') + '\\nSuggested next action: ' + ($json.next_action || 'none') } ]\n}) }}",
+        "options": {
+          "timeout": 60000,
+          "batching": {
+            "batch": {
+              "batchSize": 5,
+              "batchInterval": 1000
+            }
+          }
+        }
+      },
+      "id": "ai-followup",
+      "name": "Claude - Write Follow-Up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -100,
+        180
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Structured outputs guarantee valid JSON - no markdown stripping, no try/catch on a regex."
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Never send a half-written email. If the model gave us nothing usable, skip this lead\n// entirely rather than sending filler and burning one of its six touches.\nconst lead = $('Find Follow-Ups Due').all()[$itemIndex].json;\nconst blocks = Array.isArray($json.content) ? $json.content : [];\nconst text = blocks.filter(b => b.type === 'text').map(b => b.text).join('').trim();\nlet ai = null;\nif ($json.stop_reason !== 'refusal' && text) { try { ai = JSON.parse(text); } catch (e) { ai = null; } }\n\nconst clean = (s) => String(s || '').replace(/[\\r\\n\\t]+/g, ' ').replace(/\\s+/g, ' ').trim();\nconst subject = clean(ai && ai.subject).slice(0, 120);\nconst html = String((ai && ai.email_html) || '').trim();\nconst usable = subject.length > 5 && html.length > 40;\n\nreturn { json: {\n  ...lead,\n  subject,\n  email_html: html,\n  internal_note: clean(ai && ai.internal_note),\n  usable\n} };"
+      },
+      "id": "fn-parse",
+      "name": "Parse Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "us",
+              "leftValue": "={{ $json.usable }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-usable",
+      "name": "Copy Usable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        340,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.email_html }}",
+        "options": {}
+      },
+      "id": "gmail-fu",
+      "name": "Send Follow-Up",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        100
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sent",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-sent",
+      "name": "Actually Delivered?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        100
+      ],
+      "notes": "Only burn a touch if Gmail accepted the message."
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $('Parse Message').item.json.lead_id }}",
+            "phone": "={{ $('Parse Message').item.json.phone }}",
+            "status": "Nurturing",
+            "last_touch": "={{ $now.toISO() }}",
+            "last_followup_at": "={{ $now.toISO() }}",
+            "followup_count": "={{ $('Parse Message').item.json.followup_number }}",
+            "last_action": "={{ 'EMAIL_FOLLOWUP_' + $('Parse Message').item.json.followup_number }}",
+            "notes": "={{ $('Parse Message').item.json.subject }}"
+          },
+          "matchingColumns": [
+            "lead_id"
+          ]
+        },
+        "options": {}
+      },
+      "id": "sheets-fu-log",
+      "name": "Update Touch Count",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1000,
+        20
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput",
+      "notes": "Sets last_touch to now so tomorrow's sweep - and RE-05's - see this lead as freshly touched. If this failed silently the lead would be emailed every single morning, so failure raises an alarm instead."
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Messages",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "timestamp": "={{ $now.toISO() }}",
+            "lead_id": "={{ $('Parse Message').item.json.lead_id }}",
+            "phone": "={{ $('Parse Message').item.json.phone }}",
+            "direction": "outbound",
+            "type": "followup_email",
+            "action": "={{ 'EMAIL_FOLLOWUP_' + $('Parse Message').item.json.followup_number + ' (' + $('Parse Message').item.json.grade + ')' }}",
+            "body": "={{ 'To ' + $('Parse Message').item.json.email + ' - ' + $('Parse Message').item.json.subject }}",
+            "wa_message_id": "={{ $('Send Follow-Up').item.json.id }}",
+            "status": "sent"
+          },
+          "matchingColumns": []
+        },
+        "options": {}
+      },
+      "id": "sheets-msglog",
+      "name": "Log Follow-Up",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1220,
+        20
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=ACTION NEEDED - follow-up CRM write-back failed for {{ $('Parse Message').item.json.name }}",
+        "message": "=<div style=\"font-family:system-ui,sans-serif\">\n<h2 style=\"margin:0 0 4px;color:#B3261E\">Follow-up email sent but not recorded</h2>\n<p>The email went out, but writing <code>last_touch</code> back to the Leads sheet failed after 3 attempts. Until that row is fixed by hand, <b>this lead will be emailed again every morning</b>.</p>\n<table cellpadding=\"6\" style=\"border-collapse:collapse;font-size:14px\">\n<tr><td><b>Lead</b></td><td>{{ $('Parse Message').item.json.name }}</td></tr>\n<tr><td><b>Email</b></td><td>{{ $('Parse Message').item.json.email }}</td></tr>\n<tr><td><b>Lead ID</b></td><td>{{ $('Parse Message').item.json.lead_id }}</td></tr>\n<tr><td><b>Follow-up</b></td><td>#{{ $('Parse Message').item.json.followup_number }}</td></tr>\n<tr><td><b>Error</b></td><td>{{ $json.error }}</td></tr>\n</table>\n<p><b>Fix:</b> open the Leads sheet, set <code>last_touch</code> and <code>last_followup_at</code> to now and <code>followup_count</code> to {{ $('Parse Message').item.json.followup_number }} for that row.</p>\n</div>",
+        "options": {}
+      },
+      "id": "gmail-writeback-fail",
+      "name": "Alert - CRM Write-Back Failed",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1000,
+        240
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "sheets-digest",
+      "name": "Read Pipeline for Digest",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -540,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('Config').first().json;\nconst TZ = cfg.TIMEZONE || 'Asia/Kolkata';\nconst SLA_MIN = Number(cfg.SLA_MINUTES || 15);\nconst MAX_FOLLOWUPS = Number(cfg.MAX_FOLLOWUPS);\nconst HOLD_HOURS = Number(cfg.CONVERSATION_HOLD_HOURS);\nconst all = $input.all().map(i => i.json);\nconst mins = (v) => (Date.now() - (new Date(v || 0).getTime() || Date.now())) / 60000;\nconst days = (v) => mins(v) / 1440;\nconst grade = (l) => String(l.grade || '').toUpperCase();\nconst CLOSED = ['Booked', 'Lost', 'Dropped'];\nconst live = all.filter(l => !CLOSED.includes(l.status));\n\nconst bySource = {};\nfor (const l of all) {\n  const s = l.source || 'unknown';\n  bySource[s] = bySource[s] || { total: 0, hot: 0, junk: 0, visits: 0, booked: 0 };\n  bySource[s].total++;\n  if (grade(l) === 'HOT') bySource[s].hot++;\n  if (grade(l) === 'JUNK') bySource[s].junk++;\n  if (l.status === 'Visit Scheduled') bySource[s].visits++;\n  if (l.status === 'Booked') bySource[s].booked++;\n}\n\nreturn [{ json: {\n  date: new Date().toLocaleDateString('en-IN', { timeZone: TZ, dateStyle: 'full' }),\n  total: all.length,\n  live: live.length,\n  hot: live.filter(l => grade(l) === 'HOT').length,\n  warm: live.filter(l => grade(l) === 'WARM').length,\n  cold: live.filter(l => grade(l) === 'COLD').length,\n  junk: all.filter(l => grade(l) === 'JUNK').length,\n  unowned: live.filter(l => !l.owner).length,\n  breached_sla: live.filter(l => l.status === 'New' && mins(l.created_at) > SLA_MIN).length,\n  stale_7d: live.filter(l => days(l.last_touch) > 7).length,\n  in_conversation: live.filter(l => l.status === 'Engaged' && (mins(l.last_inbound_at || l.last_touch) / 60) < HOLD_HOURS).length,\n  nurturing: live.filter(l => l.status === 'Nurturing').length,\n  at_cap: live.filter(l => Number(l.followup_count || 0) >= MAX_FOLLOWUPS).length,\n  visits: all.filter(l => l.status === 'Visit Scheduled').length,\n  booked: all.filter(l => l.status === 'Booked').length,\n  sla_minutes: SLA_MIN,\n  max_followups: MAX_FOLLOWUPS,\n  source_table: Object.entries(bySource)\n    .sort((a, b) => b[1].total - a[1].total)\n    .map(([k, v]) => `<tr><td>${k}</td><td align=\"center\">${v.total}</td><td align=\"center\">${v.hot}</td><td align=\"center\">${v.junk}</td><td align=\"center\">${v.visits}</td><td align=\"center\">${v.booked}</td><td align=\"center\">${v.total ? Math.round(v.booked / v.total * 100) : 0}%</td></tr>`)\n    .join('')\n} }];"
+      },
+      "id": "fn-digest",
+      "name": "Build Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        700
+      ],
+      "notes": "SLA breach is now real minutes against SLA_MINUTES, not the 0.02-day fudge (which was 29 minutes, not 15)."
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Config').first().json.SALES_MANAGER_EMAIL }}",
+        "subject": "=Pipeline this morning - {{ $json.hot }} hot, {{ $json.breached_sla }} past SLA, {{ $json.visits }} visits booked",
+        "message": "=<div style=\"font-family:system-ui,sans-serif;max-width:680px\">\n<h2 style=\"margin:0\">Sales pipeline</h2>\n<p style=\"color:#666;margin:2px 0 20px\">{{ $json.date }}</p>\n<table cellpadding=\"10\" style=\"border-collapse:collapse;width:100%;font-size:14px\">\n<tr style=\"background:#10192B;color:#fff\"><td>Live</td><td>Hot</td><td>Unassigned</td><td>Past {{ $json.sla_minutes }}-min SLA</td><td>Untouched 7d+</td><td>Visits</td><td>Booked</td></tr>\n<tr style=\"text-align:center;font-size:20px;font-weight:600\"><td>{{ $json.live }}</td><td style=\"color:#C8811A\">{{ $json.hot }}</td><td>{{ $json.unowned }}</td><td style=\"color:#B3261E\">{{ $json.breached_sla }}</td><td>{{ $json.stale_7d }}</td><td style=\"color:#0E7C66\">{{ $json.visits }}</td><td style=\"color:#0E7C66\">{{ $json.booked }}</td></tr>\n</table>\n<p style=\"color:#5A6472;font-size:13px;margin:14px 0 0\">Nurture: {{ $json.nurturing }} in sequence &middot; {{ $json.in_conversation }} in a live conversation (follow-ups paused) &middot; {{ $json.at_cap }} at the {{ $json.max_followups }}-touch cap and waiting on a human &middot; {{ $json.junk }} graded junk</p>\n<h3 style=\"margin:28px 0 8px\">Source performance</h3>\n<table cellpadding=\"8\" style=\"border-collapse:collapse;width:100%;font-size:14px;border:1px solid #ddd\">\n<tr style=\"background:#EEF1F6\"><th align=\"left\">Source</th><th>Leads</th><th>Hot</th><th>Junk</th><th>Visits</th><th>Booked</th><th>Conv.</th></tr>\n{{ $json.source_table }}\n</table>\n<p style=\"color:#666;font-size:12px;margin-top:24px\">Generated automatically. Cadence and SLA are tunable in the workflow's Config node.</p>\n</div>",
+        "options": {}
+      },
+      "id": "gmail-digest",
+      "name": "Email Manager Digest",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -100,
+        700
+      ]
+    }
+  ],
+  "connections": {
+    "Daily 11am IST": {
+      "main": [
+        [
+          {
+            "node": "Job - Follow-Ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job - Follow-Ups": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily 8:30am IST": {
+      "main": [
+        [
+          {
+            "node": "Job - Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job - Digest": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Which Job?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Which Job?": {
+      "main": [
+        [
+          {
+            "node": "Read Full Pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Pipeline for Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Full Pipeline": {
+      "main": [
+        [
+          {
+            "node": "Find Follow-Ups Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Follow-Ups Due": {
+      "main": [
+        [
+          {
+            "node": "Claude - Write Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude - Write Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Parse Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Message": {
+      "main": [
+        [
+          {
+            "node": "Copy Usable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy Usable?": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Actually Delivered?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actually Delivered?": {
+      "main": [
+        [
+          {
+            "node": "Update Touch Count",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Update Touch Count": {
+      "main": [
+        [
+          {
+            "node": "Log Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert - CRM Write-Back Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pipeline for Digest": {
+      "main": [
+        [
+          {
+            "node": "Build Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Digest": {
+      "main": [
+        [
+          {
+            "node": "Email Manager Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
