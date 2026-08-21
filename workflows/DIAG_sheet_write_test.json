@@ -12,7 +12,10 @@
       "name": "Note",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [-720, -160]
+      "position": [
+        -720,
+        -160
+      ]
     },
     {
       "parameters": {},
@@ -20,38 +23,63 @@
       "name": "Execute workflow",
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [-680, 200]
+      "position": [
+        -680,
+        200
+      ]
     },
     {
       "parameters": {
-        "documentId": { "__rl": true, "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68", "mode": "id" },
-        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "documentId": {
+          "__rl": true,
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
         "options": {}
       },
       "id": "read",
       "name": "1 - Read Leads Tab",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [-460, 200],
+      "position": [
+        -460,
+        200
+      ],
       "alwaysOutputData": true,
       "notes": "Proves the credential, the document ID and the tab name. If this fails, the write was never going to work."
     },
     {
       "parameters": {
-        "jsCode": "// Report exactly what the tab looks like to n8n, then hand one test row to the writer.\nconst rows = $input.all().map(i => i.json).filter(r => r && Object.keys(r).length);\nconst headers = rows.length ? Object.keys(rows[0]) : [];\nconst now = new Date().toISOString();\nreturn [{ json: {\n  __diagnostic: {\n    data_rows_found: rows.length,\n    headers_seen: headers,\n    header_count: headers.length,\n    has_phone_column: headers.includes('phone'),\n    has_lead_id_column: headers.includes('lead_id'),\n    verdict: !headers.length\n      ? 'NO HEADERS. n8n sees no columns in row 1 of the Leads tab - appendOrUpdate has nothing to map to.'\n      : (headers.includes('phone')\n          ? 'Headers look right. If the write below still fails, read its red error.'\n          : 'The phone column is MISSING. appendOrUpdate matches on it, so the write cannot work.')\n  },\n  lead_id: 'DIAG' + Date.now(),\n  created_at: now,\n  name: 'DIAGNOSTIC TEST - delete me',\n  phone: '0000000000',\n  wa_id: '910000000000',\n  status: 'New',\n  source: 'diagnostic',\n  last_touch: now\n} }];"
+        "jsCode": "// Headers can only be inferred from a data row, and an empty tab has none - so on an\n// empty tab this cannot tell 'no headers' from 'headers but no data'. Say so rather\n// than guessing, and let the write below be the real test.\nconst rows = $input.all().map(i => i.json).filter(r => r && Object.keys(r).length);\nconst headers = rows.length ? Object.keys(rows[0]) : [];\nconst now = new Date().toISOString();\nlet verdict;\nif (!rows.length) {\n  verdict = 'Tab is empty of data rows, which is expected on a fresh sheet. Headers cannot be '\n    + 'checked from here. THE REAL TEST IS NODE 3 BELOW - if it goes green, open the Leads tab '\n    + 'and press Ctrl+End to find the row it wrote.';\n} else if (!headers.includes('phone')) {\n  verdict = 'The phone column is MISSING from row 1. appendOrUpdate matches on it, so the write cannot work.';\n} else {\n  verdict = 'Headers look right. If the write below still fails, read its red error.';\n}\nreturn [{ json: {\n  __diagnostic: { data_rows_found: rows.length, headers_seen: headers, header_count: headers.length,\n    has_phone_column: headers.includes('phone'), verdict },\n  lead_id: 'DIAG' + Date.now(), created_at: now, name: 'DIAGNOSTIC TEST - delete me',\n  phone: '0000000000', wa_id: '910000000000', status: 'New', source: 'diagnostic', last_touch: now\n} }];"
       },
       "id": "inspect",
       "name": "2 - Inspect Headers",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [-240, 200],
+      "position": [
+        -240,
+        200
+      ],
       "notes": "Open this node's OUTPUT and read __diagnostic.verdict before anything else."
     },
     {
       "parameters": {
         "operation": "appendOrUpdate",
-        "documentId": { "__rl": true, "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68", "mode": "id" },
-        "sheetName": { "__rl": true, "value": "Leads", "mode": "name" },
+        "documentId": {
+          "__rl": true,
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
@@ -64,7 +92,9 @@
             "source": "={{ $json.source }}",
             "last_touch": "={{ $json.last_touch }}"
           },
-          "matchingColumns": ["phone"]
+          "matchingColumns": [
+            "phone"
+          ]
         },
         "options": {}
       },
@@ -72,15 +102,50 @@
       "name": "3 - Write Test Row",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [-20, 200],
+      "position": [
+        -20,
+        200
+      ],
       "notes": "Exactly the operation Save Lead to CRM performs, with NO onError setting - so any rejection shows in red instead of passing silently."
     }
   ],
   "connections": {
-    "Execute workflow": { "main": [[{ "node": "1 - Read Leads Tab", "type": "main", "index": 0 }]] },
-    "1 - Read Leads Tab": { "main": [[{ "node": "2 - Inspect Headers", "type": "main", "index": 0 }]] },
-    "2 - Inspect Headers": { "main": [[{ "node": "3 - Write Test Row", "type": "main", "index": 0 }]] }
+    "Execute workflow": {
+      "main": [
+        [
+          {
+            "node": "1 - Read Leads Tab",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1 - Read Leads Tab": {
+      "main": [
+        [
+          {
+            "node": "2 - Inspect Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2 - Inspect Headers": {
+      "main": [
+        [
+          {
+            "node": "3 - Write Test Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
   },
-  "settings": { "executionOrder": "v1" },
+  "settings": {
+    "executionOrder": "v1"
+  },
   "pinData": {}
 }
