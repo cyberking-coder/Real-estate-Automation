@@ -171,6 +171,17 @@ npx n8n</pre>
 <pre>ngrok http 5678        <span class="c"># or: cloudflared tunnel --url http://localhost:5678</span></pre>
 <p>Copy the <code>https://….ngrok-free.app</code> address. That host replaces <code>localhost:5678</code> in every URL you give Meta.</p>
 <div class="callout warn"><p><b>The free ngrok URL changes every restart.</b> When it does, update <code>WEBHOOK_URL</code>, restart n8n, and re-save the callback URL in Meta. A reserved domain or cloudflared removes this chore — worth it before a client demo.</p></div>
+
+<h4 style="margin-top:5mm">If you are already running behind ngrok</h4>
+<table>
+<tr><th style="width:46mm">Point</th><th>What to do</th></tr>
+<tr><td>Publishing is unaffected</td><td>Activation happens inside n8n. A tunnel is irrelevant to it — a workflow that will not publish has a node issue, not a network problem.</td></tr>
+<tr><td><code>WEBHOOK_URL</code> needs a restart</td><td>n8n reads it at boot. Setting it while n8n is running changes nothing; the node still shows a <code>localhost</code> URL. Restart, then re-copy the Production URL.</td></tr>
+<tr><td>Check it took effect</td><td>Open any webhook node. Its Production URL should start with your ngrok host, not <code>localhost:5678</code>. If it does not, <code>WEBHOOK_URL</code> did not apply.</td></tr>
+<tr><td>Point the dashboard at localhost</td><td>Use <code>http://localhost:5678/webhook/dashboard-data</code>, not the ngrok URL. It is the same machine, so it is faster, uses no tunnel bandwidth, and sidesteps ngrok's browser interstitial, which can return an HTML warning page where the dashboard expects JSON.</td></tr>
+<tr><td>Test through the tunnel with curl</td><td><code>curl https://your-host.ngrok-free.app/webhook/lead-intake</code> — curl is not treated as a browser, so no interstitial. If that reaches n8n, Meta will too.</td></tr>
+<tr><td>Keep the tunnel on 5678</td><td><code>ngrok http 5678</code>. Tunnelling any other port silently produces a URL that answers nothing.</td></tr>
+</table>
 </div></div>
 
 <div class="step"><div class="stepno">3</div><div>

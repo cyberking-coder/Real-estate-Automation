@@ -54,6 +54,21 @@ Everything — inbound taps, outbound replies, bookings — is written back to G
 | Google account | Sheets (CRM), Calendar (visits), Gmail (manager alerts) |
 | A tunnel — `ngrok http 5678` or `cloudflared` | **Meta cannot call `localhost`**, it needs a public HTTPS URL for the inbound webhook |
 
+### Running behind ngrok
+
+* **Publishing is unaffected by the tunnel.** n8n registers triggers in its own process — it never calls
+  out at activation. A workflow that refuses to publish has a node issue (usually a missing credential
+  on the `WhatsApp Message Received` trigger), not a network problem.
+* **`WEBHOOK_URL` is read at boot.** Set it and *restart* n8n, then re-copy the Production URL from the
+  webhook node. If that URL still says `localhost:5678`, the variable did not apply.
+* **Point the dashboard at `http://localhost:5678`, not the ngrok URL** — same machine, so it is faster,
+  uses no tunnel bandwidth, and avoids ngrok's browser interstitial returning an HTML warning page where
+  the dashboard expects JSON.
+* **Test through the tunnel with curl**, which ngrok does not treat as a browser:
+  `curl https://your-host.ngrok-free.app/webhook/lead-intake`. If that reaches n8n, Meta will too.
+* Tunnel port 5678, and remember the free URL changes on every restart — update `WEBHOOK_URL` *and* the
+  Meta callback each time.
+
 Docker one-liner (set the tunnel host so webhook URLs are generated correctly):
 
 ```bash
