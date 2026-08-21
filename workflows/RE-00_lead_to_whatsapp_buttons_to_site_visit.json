@@ -1748,6 +1748,39 @@
       ],
       "onError": "continueRegularOutput",
       "notes": "Only the /simulate webhook waits for a response. The WhatsApp trigger has already answered Meta by this point, so this is a no-op there - and set to continue on error in case it is not."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "smwa",
+              "leftValue": "={{ ($('Config').first().json.SALES_MANAGER_WHATSAPP || '').toString().replace(/\\D/g,'') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-smwa",
+      "name": "Manager on WhatsApp?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1400,
+        790
+      ],
+      "notes": "A blank SALES_MANAGER_WHATSAPP would otherwise send Meta a request with no recipient, which fails with 'The parameter to is required'. The email still goes out either way."
     }
   ],
   "connections": {
@@ -2207,7 +2240,7 @@
       "main": [
         [
           {
-            "node": "WA - Notify Sales Manager",
+            "node": "Manager on WhatsApp?",
             "type": "main",
             "index": 0
           },
@@ -2391,6 +2424,24 @@
         [
           {
             "node": "Find Lead in CRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manager on WhatsApp?": {
+      "main": [
+        [
+          {
+            "node": "WA - Notify Sales Manager",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Visit to Sales Manager",
             "type": "main",
             "index": 0
           }
