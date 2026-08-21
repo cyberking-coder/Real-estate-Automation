@@ -179,9 +179,17 @@ three buttons and no approval needed.
 ## 7. Test it on localhost
 
 ```bash
-# a website/app submitting a lead
 open test/lead-form.html            # or: bash test/curl-examples.sh
 ```
+
+The form posts to the ngrok production URL by default and shows what RE-00 sent back — lead id, grade
+and score. Its **Endpoint** section (bottom of the card) lets you repoint it without editing the file,
+which matters because free ngrok URLs change on every restart; the choice is remembered in that browser.
+On the same machine as n8n, the *use localhost* link is faster and avoids ngrok's browser interstitial.
+
+Both webhooks set **Allowed Origins (CORS)** to `*`. A JSON POST from a browser is not a "simple" request,
+so the browser sends an `OPTIONS` preflight first — without that option the call fails before it ever
+reaches your workflow.
 
 `test/curl-examples.sh` also drives the **button flow without Meta** through the
 `POST /webhook/simulate` entry point:

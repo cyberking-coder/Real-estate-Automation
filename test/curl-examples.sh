@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Local smoke tests for RE-00. Workflow must be ACTIVE (or use /webhook-test/ while in Test mode).
 set -euo pipefail
+# Local by default. To go through your tunnel instead:
+#   BASE=https://landline-sternum-fence.ngrok-free.dev/webhook bash test/curl-examples.sh
+# curl is not treated as a browser, so ngrok's interstitial does not apply here.
 BASE="${BASE:-http://localhost:5678/webhook}"
 PHONE="${PHONE:-919876543210}"
 

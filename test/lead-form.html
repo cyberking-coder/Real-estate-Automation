@@ -3,81 +3,213 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>XYZ Properties - Enquiry</title>
+<title>XYZ Properties — Enquiry</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#10192B; --line:#D3D9E3; --brand:#0E7C66; }
-  * { box-sizing:border-box }
-  body { font-family:system-ui,-apple-system,sans-serif; background:#F4F6FA; color:var(--ink);
-         margin:0; min-height:100vh; display:grid; place-items:center; padding:24px }
-  form { background:#fff; padding:28px; border-radius:12px; width:min(440px,100%);
-         box-shadow:0 2px 24px rgba(16,25,43,.08) }
-  h1 { font-size:20px; margin:0 0 4px }
-  p.sub { margin:0 0 20px; color:#5A6472; font-size:14px }
-  label { display:block; font-size:13px; font-weight:600; margin:14px 0 4px }
-  input, select, textarea { width:100%; padding:10px 12px; border:1px solid var(--line);
-         border-radius:8px; font-size:14px; font-family:inherit }
-  button { margin-top:20px; width:100%; padding:12px; background:var(--brand); color:#fff;
-         border:0; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer }
-  button:disabled { opacity:.6 }
-  pre { background:#10192B; color:#9FE8D5; padding:12px; border-radius:8px; font-size:12px;
-         overflow:auto; margin-top:16px; display:none }
+:root{--navy:#0F1B2D;--ivory:#FAF7F2;--ivory-d:#F1ECE2;--line:#E7E1D4;--ink:#1B1B18;--dim:#5B5A52;
+ --faint:#8B897E;--gold:#B8934D;--green:#1D7A52;--green-d:#E7F1EA;--red:#A83629;--red-d:#F8EAE7;
+ --blue:#2F6FA8;--blue-d:#EAF1F7;--amber:#A8781A;--amber-d:#F5EBD8;
+ --d:'Fraunces',Georgia,serif;--b:'Inter',system-ui,sans-serif;--m:'JetBrains Mono',ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--b);background:var(--ivory);color:var(--ink);min-height:100vh;
+ display:grid;place-items:start center;padding:28px 16px 60px;font-size:14px}
+.wrap{width:min(520px,100%)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px;
+ box-shadow:0 1px 2px rgba(15,27,45,.06),0 8px 28px rgba(15,27,45,.05)}
+.mark{width:34px;height:34px;border-radius:9px;background:var(--gold);display:grid;place-items:center;
+ font-family:var(--d);font-weight:600;color:var(--navy);font-size:16px;margin-bottom:14px}
+h1{font-family:var(--d);font-size:21px;font-weight:600;margin-bottom:3px}
+.sub{color:var(--faint);font-size:13px;margin-bottom:20px}
+label{display:block;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;
+ color:var(--faint);margin:14px 0 5px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+ font-size:14px;font-family:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:transparent}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:440px){.row{grid-template-columns:1fr}}
+button{margin-top:20px;width:100%;padding:13px;background:var(--navy);color:#fff;border:0;border-radius:9px;
+ font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s}
+button:hover{opacity:.9} button:disabled{opacity:.55;cursor:default}
+.hint{font-size:11.5px;color:var(--faint);margin-top:5px;line-height:1.5}
+code{font-family:var(--m);font-size:11.5px;background:var(--ivory-d);padding:1px 5px;border-radius:4px}
+a{color:var(--blue);cursor:pointer;text-decoration:none;border-bottom:1px solid rgba(47,111,168,.35)}
+
+.endpoint{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line)}
+.endpoint summary{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;
+ color:var(--faint);cursor:pointer;list-style:none}
+.endpoint summary::-webkit-details-marker{display:none}
+.endpoint summary:before{content:'▸ ';color:var(--gold)}
+.endpoint[open] summary:before{content:'▾ '}
+.endpoint input{font-family:var(--m);font-size:12px;margin-top:8px}
+
+.result{margin-top:18px;border-radius:10px;padding:16px 18px;display:none;font-size:13.5px;line-height:1.6}
+.result.on{display:block}
+.result.ok{background:var(--green-d);border:1px solid #CBE3D6}
+.result.bad{background:var(--red-d);border:1px solid #EBD2CD}
+.result.busy{background:var(--blue-d);border:1px solid #CFE0EE}
+.result h3{font-family:var(--d);font-size:15px;font-weight:600;margin-bottom:6px}
+.result.ok h3{color:var(--green)} .result.bad h3{color:var(--red)} .result.busy h3{color:var(--blue)}
+.result ul{margin:8px 0 0 17px;line-height:1.7}
+.result p{margin-bottom:5px}
+.grades{display:flex;gap:8px;flex-wrap:wrap;margin:11px 0 3px}
+.g{font-size:11px;font-weight:700;letter-spacing:.3px;padding:3px 10px;border-radius:20px}
+.g-HOT{background:#F5DBD6;color:var(--red)} .g-WARM{background:#EFE0C2;color:var(--amber)}
+.g-COLD{background:#D9E7F3;color:var(--blue)} .g-JUNK{background:#E6E4DE;color:var(--faint)}
+.kv{font-family:var(--m);font-size:12px;color:var(--dim)}
+pre{font-family:var(--m);font-size:11px;line-height:1.5;background:var(--navy);color:#E8EEF5;
+ padding:11px 13px;border-radius:7px;margin-top:11px;overflow-x:auto;white-space:pre-wrap;word-break:break-word}
 </style>
 </head>
 <body>
-<form id="f">
+<div class="wrap">
+<form id="f" class="card" autocomplete="off">
+  <div class="mark">X</div>
   <h1>Enquire about XYZ Properties</h1>
-  <p class="sub">Submit and you get the WhatsApp menu instantly.</p>
+  <p class="sub">Submit and the WhatsApp menu arrives in a few seconds.</p>
 
-  <label>Full name</label>
-  <input name="name" required value="Rohan Kelkar">
+  <label for="name">Full name</label>
+  <input id="name" name="name" required value="Rohan Kelkar">
 
-  <label>WhatsApp number (with country code)</label>
-  <input name="phone" required value="919876543210">
+  <label for="phone">WhatsApp number (with country code)</label>
+  <input id="phone" name="phone" required value="919876543210" inputmode="numeric">
+  <div class="hint">Use a number you can actually check — a real WhatsApp message is sent to it.</div>
 
-  <label>Email</label>
-  <input name="email" type="email" value="buyer@example.com">
+  <label for="email">Email</label>
+  <input id="email" name="email" type="email" value="buyer@example.com">
 
-  <label>Project</label>
-  <select name="project">
-    <option>XYZ Skyline Residences</option>
-    <option>XYZ Green Enclave</option>
-  </select>
+  <div class="row">
+    <div>
+      <label for="project">Project</label>
+      <select id="project" name="project">
+        <option>XYZ Skyline Residences</option>
+        <option>XYZ Green Enclave</option>
+      </select>
+    </div>
+    <div>
+      <label for="configuration">Configuration</label>
+      <select id="configuration" name="configuration">
+        <option>2BHK</option><option selected>3BHK</option><option>4BHK+</option>
+      </select>
+    </div>
+  </div>
 
-  <label>Budget</label>
-  <input name="budget" value="1.2 Cr">
+  <div class="row">
+    <div>
+      <label for="budget">Budget</label>
+      <input id="budget" name="budget" value="1.2 Cr">
+    </div>
+    <div>
+      <label for="timeline">Timeline</label>
+      <select id="timeline" name="timeline">
+        <option>0-3m</option><option>3-6m</option><option>6-12m</option><option>12m+</option>
+      </select>
+    </div>
+  </div>
 
-  <label>Configuration</label>
-  <input name="configuration" value="3BHK">
-
-  <label>Message</label>
-  <textarea name="message" rows="3">Looking for a 3BHK, possession within 2 years.</textarea>
+  <label for="message">Message</label>
+  <textarea id="message" name="message" rows="3">Looking for a 3BHK with a lake view, possession within 2 years.</textarea>
 
   <input type="hidden" name="source" value="website">
   <input type="hidden" name="campaign" value="local-test">
 
-  <button type="submit">Submit enquiry</button>
-  <pre id="out"></pre>
+  <button type="submit" id="btn">Submit enquiry</button>
+
+  <div class="result" id="out"></div>
+
+  <details class="endpoint" id="ep">
+    <summary>Endpoint</summary>
+    <input id="url" spellcheck="false">
+    <div class="hint">
+      Saved in this browser. Free ngrok URLs change on every restart — paste the new one here rather than
+      editing the file. On the same machine as n8n, <a id="useLocal">use localhost</a> instead: it is faster
+      and skips ngrok's browser warning page.
+    </div>
+  </details>
 </form>
+</div>
 
 <script>
-const WEBHOOK = 'http://localhost:5678/webhook/lead-intake'; // use /webhook-test/ while the canvas is in Test mode
-const f = document.getElementById('f'), out = document.getElementById('out');
-f.addEventListener('submit', async (e) => {
+const NGROK = 'https://landline-sternum-fence.ngrok-free.dev/webhook/lead-intake';
+const LOCAL = 'http://localhost:5678/webhook/lead-intake';
+const LS = 'reauto.leadform.url';
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let url = NGROK;
+try { url = localStorage.getItem(LS) || NGROK; } catch(e){}
+$('url').value = url;
+$('url').addEventListener('change', () => {
+  url = $('url').value.trim() || NGROK;
+  $('url').value = url;
+  try { localStorage.setItem(LS, url); } catch(e){}
+});
+$('useLocal').addEventListener('click', () => {
+  $('ep').open = true;                       /* so the change is visible, not silent */
+  $('url').value = LOCAL; $('url').dispatchEvent(new Event('change'));
+});
+
+function show(kind, html){ const o = $('out'); o.className = 'result on ' + kind; o.innerHTML = html; }
+
+$('f').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const btn = f.querySelector('button');
-  btn.disabled = true; btn.textContent = 'Sending...';
-  out.style.display = 'block'; out.textContent = 'POST ' + WEBHOOK;
+  const btn = $('btn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  show('busy', `<h3>Posting to n8n…</h3><p class="kv">${esc(url)}</p>`);
+
+  const payload = Object.fromEntries(new FormData($('f')));
+  let res, raw;
   try {
-    const res = await fetch(WEBHOOK, {
+    res = await fetch(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(Object.fromEntries(new FormData(f)))
+      body: JSON.stringify(payload)
     });
-    out.textContent = res.status + ' ' + res.statusText + '\n' + await res.text();
+    raw = await res.text();
   } catch (err) {
-    out.textContent = 'Failed: ' + err.message + '\nIs n8n running on localhost:5678 and the workflow active?';
+    show('bad', `<h3>The request never reached n8n</h3>
+      <p>The browser could not complete the call to <code>${esc(url)}</code>.</p>
+      <ul>
+        <li>Is n8n running, and is <b>RE-00</b> published? An unpublished workflow only answers on its
+            <code>/webhook-test/</code> URL, and only while the canvas is open.</li>
+        <li>If this is an ngrok URL, is the tunnel still up? Free URLs die when ngrok restarts.</li>
+        <li>Browser console showing a CORS error? Re-import RE-00 — the webhook now sets
+            <b>Allowed Origins</b> to <code>*</code>, which is what answers the preflight.</li>
+        <li>Same machine as n8n? <a onclick="document.getElementById('ep').open=true">Switch to localhost</a>.</li>
+      </ul>
+      <pre>${esc(err.message)}</pre>`);
+    btn.disabled = false; btn.textContent = 'Submit enquiry'; return;
   }
-  btn.disabled = false; btn.textContent = 'Submit enquiry';
+
+  if (/^\s*<(!doctype|html)/i.test(raw)) {
+    show('bad', `<h3>ngrok answered, not n8n</h3>
+      <p>An HTML page came back instead of JSON — this is ngrok's browser warning interstitial.</p>
+      <ul><li><a onclick="document.getElementById('useLocal').click()">Use the localhost URL</a> — you are on the
+      same machine, so the tunnel buys you nothing here.</li></ul>`);
+    btn.disabled = false; btn.textContent = 'Submit enquiry'; return;
+  }
+
+  let json = null;
+  try { json = JSON.parse(raw); } catch(e){}
+
+  if (!res.ok || !json || json.ok !== true) {
+    show('bad', `<h3>n8n replied with HTTP ${res.status}</h3>
+      <p>The webhook was reached but the workflow did not finish cleanly. Open <b>Executions</b> in n8n —
+      the failed run names the node.</p>
+      <pre>${esc(raw.slice(0, 700))}</pre>`);
+    btn.disabled = false; btn.textContent = 'Submit enquiry'; return;
+  }
+
+  const g = (json.grade || 'UNGRADED').toUpperCase();
+  show('ok', `<h3>Lead captured</h3>
+    <p>Written to the CRM. The WhatsApp menu is on its way to <b>${esc(json.phone || payload.phone)}</b>.</p>
+    <div class="grades"><span class="g g-${esc(g)}">${esc(g)}</span>
+      ${json.score != null ? `<span class="kv" style="align-self:center">score ${esc(json.score)}/100</span>` : ''}
+      ${json.returning_lead ? '<span class="kv" style="align-self:center">returning enquiry</span>' : ''}</div>
+    <p class="kv">lead_id ${esc(json.lead_id || '—')}</p>
+    ${json.next_action ? `<p style="margin-top:8px"><b>Next action:</b> ${esc(json.next_action)}</p>` : ''}
+    <p style="margin-top:9px">Didn't get the WhatsApp? That is almost always the 24-hour window —
+    see step 6 of the setup guide.</p>`);
+  btn.disabled = false; btn.textContent = 'Submit another';
 });
 </script>
 </body>

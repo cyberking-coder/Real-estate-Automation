@@ -54,7 +54,9 @@
         "httpMethod": "POST",
         "path": "lead-intake",
         "responseMode": "responseNode",
-        "options": {}
+        "options": {
+          "allowedOrigins": "*"
+        }
       },
       "id": "wh-lead",
       "name": "Lead Intake Webhook",
@@ -89,7 +91,9 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "simulate",
-        "options": {}
+        "options": {
+          "allowedOrigins": "*"
+        }
       },
       "id": "wh-sim",
       "name": "Simulate Button Click (Local Test)",
@@ -495,7 +499,16 @@
       "parameters": {
         "respondWith": "json",
         "responseBody": "={{ JSON.stringify({ ok: true, lead_id: $('Flag Duplicate').first().json.lead_id, name: $('Flag Duplicate').first().json.name, phone: $('Flag Duplicate').first().json.phone_e164, project: $('Flag Duplicate').first().json.project, grade: $('Merge AI Grade').first().json.grade, score: $('Merge AI Grade').first().json.score, next_action: $('Merge AI Grade').first().json.next_action, returning_lead: $('Flag Duplicate').first().json.is_returning, whatsapp_message_id: $('Log Welcome Sent').first().json.wa_message_id || '' }) }}",
-        "options": {}
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
       },
       "id": "respond-lead",
       "name": "Respond to Source",
