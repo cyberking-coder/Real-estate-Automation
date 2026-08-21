@@ -83,10 +83,18 @@ docker run -it --rm -p 5678:5678 \
 Everything is in one file: **[`google-sheets/XYZ-Properties-CRM.xlsx`](google-sheets/XYZ-Properties-CRM.xlsx)**
 
 1. Drop it in Google Drive → right-click → **Open with → Google Sheets** → **File → Save as Google Sheets**.
-2. Copy the ID out of the URL (`docs.google.com/spreadsheets/d/`**`THIS-PART`**`/edit#gid=0`) into `SHEET_ID`
-   in the Config node of RE-00, RE-04, RE-05 and RE-06. That is the **whole file's** ID — ignore the
-   trailing `gid=`, which identifies one tab and is never used. Despite the name, `SHEET_ID` holds what
-   n8n calls the *Document*; each node then picks its *Sheet* (tab) by name.
+2. Copy the ID out of the URL — `docs.google.com/spreadsheets/d/`**`THIS-PART`**`/edit#gid=0`. That is the
+   **whole file's** ID; ignore the trailing `gid=`, which identifies one tab and is never used.
+3. Stamp it into every Google Sheets node in one pass, then import the workflows:
+
+   ```bash
+   python3 scripts/set-sheet-id.py <your-sheet-id>     # a full URL works too
+   ```
+
+   The id is bound **literally on each node**, not through a Config expression. n8n cannot resolve an
+   expression in a resource-locator at design time, so an expression leaves the node unable to load the
+   sheet's columns and the write silently maps nothing — it looks green and does nothing. Each node then
+   picks its tab (`Leads`, `Projects`, …) by name, which is why renaming a tab breaks things.
 3. Share the sheet with the Google account behind your n8n credential, as **Editor**.
 
 Seven tabs:

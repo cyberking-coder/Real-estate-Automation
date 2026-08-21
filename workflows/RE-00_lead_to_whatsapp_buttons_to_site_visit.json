@@ -117,12 +117,6 @@
               "type": "string"
             },
             {
-              "id": "c2",
-              "name": "SHEET_ID",
-              "value": "PUT_YOUR_GOOGLE_SHEET_ID_HERE",
-              "type": "string"
-            },
-            {
               "id": "c3",
               "name": "CALENDAR_ID",
               "value": "primary",
@@ -236,7 +230,8 @@
       "position": [
         -1420,
         100
-      ]
+      ],
+      "notes": "The sheet id lives on each Google Sheets node, not here - set it in one pass with scripts/set-sheet-id.py."
     },
     {
       "parameters": {
@@ -255,7 +250,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -302,7 +297,7 @@
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -443,7 +438,7 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -569,7 +564,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -615,7 +610,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -663,7 +658,7 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -703,7 +698,7 @@
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -1169,7 +1164,7 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -1214,7 +1209,7 @@
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -1346,7 +1341,7 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -1498,7 +1493,7 @@
         "description": "Verified facts about a project: price range, configurations, carpet area, possession date, RERA number, amenities, location, address. Pass the project name.",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -1676,7 +1671,7 @@
         "operation": "appendOrUpdate",
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {

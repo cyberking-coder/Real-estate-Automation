@@ -46,12 +46,6 @@
               "type": "string"
             },
             {
-              "id": "d2",
-              "name": "SHEET_ID",
-              "value": "PUT_YOUR_GOOGLE_SHEET_ID_HERE",
-              "type": "string"
-            },
-            {
               "id": "d3",
               "name": "DASHBOARD_KEY",
               "value": "change-me-local-dashboard",
@@ -112,7 +106,7 @@
         -900,
         240
       ],
-      "notes": "Cadence values must match RE-04 and RE-05, otherwise the follow-up queue shown here will not match what actually gets sent."
+      "notes": "Cadence values must match RE-04 and RE-05, otherwise the follow-up queue shown here will not match what actually gets sent. The sheet id lives on each Google Sheets node, not here - set it in one pass with scripts/set-sheet-id.py."
     },
     {
       "parameters": {
@@ -149,7 +143,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -174,7 +168,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -200,7 +194,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
@@ -225,7 +219,7 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "={{ $('Config').first().json.SHEET_ID }}",
+          "value": "11kVd4FGR1vI8H8EVQ3_o2m0qzHMfMS_-xLgMgTLBH68",
           "mode": "id"
         },
         "sheetName": {
