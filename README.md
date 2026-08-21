@@ -61,18 +61,33 @@ docker run -it --rm -p 5678:5678 \
 
 ## 2. Build the CRM spreadsheet
 
-Create one Google Sheet with **four tabs**, headers exactly as in [`google-sheets/`](google-sheets/):
+Everything is in one file: **[`google-sheets/XYZ-Properties-CRM.xlsx`](google-sheets/XYZ-Properties-CRM.xlsx)**
+
+1. Drop it in Google Drive → right-click → **Open with → Google Sheets** → **File → Save as Google Sheets**.
+2. Copy the ID out of the URL (`docs.google.com/spreadsheets/d/`**`THIS-PART`**`/edit`) into `SHEET_ID`
+   in the Config node of RE-00, RE-04 and RE-05.
+3. Share the sheet with the Google account behind your n8n credential, as **Editor**.
+
+Seven tabs:
 
 | Tab | Purpose |
 |---|---|
-| `Leads` | one row per buyer — the CRM |
-| `Projects` | price, specs, photo URLs, brochure URL per project — **the workflow reads all content from here, nothing is hard-coded** |
+| **Start here** | setup steps and the rules that break things if ignored |
+| **Dashboard** | live formulas over the tabs below — pipeline, grades, nurture health, conversion by source |
+| `Leads` | one row per buyer — the CRM. Written by n8n, matched on `phone` |
+| `Projects` | **the only tab you fill in by hand.** Price, specs, photo URLs, brochure URL per project — every word the bot says about a property is read from here, nothing is hard-coded |
 | `Visits` | every booked site visit |
-| `Messages` | full inbound/outbound WhatsApp log |
+| `Messages` | full inbound/outbound log |
+| **Field guide** | every column, what writes it, and a realistic example value |
 
-Import each CSV as its own tab (File → Import → Insert new sheet), then fill the `Projects` rows with
-your real data. `image_1..3` and `brochure_url` must be **public direct links** that Meta's servers can
-fetch — a Google Drive "share" link will not work, use a direct file URL or a CDN/S3 link.
+The data tabs ship empty apart from headers — no fake lead can reach a real buyer. `Projects` has two
+shaded example rows to overwrite. `image_1..3` and `brochure_url` must be **public direct links** that
+Meta's servers can fetch — a Google Drive "share" link returns HTML, not a file, and the send fails.
+
+**Never rename or reorder a column**, and keep row 1 as the header: the workflows map to headers by
+name, so a renamed column silently stops being written. `Leads.status` and `Leads.grade` have
+dropdowns set to *warn, never reject*, so n8n can always write. Yours to edit: the `Projects` tab,
+plus `owner` and `notes` on `Leads`.
 
 ## 3. Credentials to create in n8n
 
