@@ -113,6 +113,13 @@ The data tabs ship empty apart from headers — no fake lead can reach a real bu
 shaded example rows to overwrite. `image_1..3` and `brochure_url` must be **public direct links** that
 Meta's servers can fetch — a Google Drive "share" link returns HTML, not a file, and the send fails.
 
+To use Drive anyway, set the file to *Anyone with the link → Viewer* and rewrite the URL using the id from
+between `/d/` and `/view`: photos as `https://drive.google.com/thumbnail?id=FILE_ID&sz=w1600`, PDFs as
+`https://drive.google.com/uc?export=download&id=FILE_ID`. Verify with
+`curl -sIL "<url>" | grep -iE "^HTTP/|^content-type"` — you want `200` and `image/jpeg` or
+`application/pdf`. Drive is fine for testing; for a client deployment host on their own site or Cloudinary.
+Changing a URL needs no republish — the Projects tab is read live on every button tap.
+
 **Never rename or reorder a column**, and keep row 1 as the header: the workflows map to headers by
 name, so a renamed column silently stops being written. `Leads.status` and `Leads.grade` have
 dropdowns set to *warn, never reject*, so n8n can always write. Yours to edit: the `Projects` tab,
