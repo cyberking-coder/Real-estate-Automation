@@ -408,6 +408,17 @@ magnitude bars use a single hue so identity comes from the label rather than the
 
 ---
 
+## Selling this
+
+`sales/` has a two-page proposal template — [`Proposal-Template.pdf`](sales/Proposal-Template.pdf), built
+from [`proposal-template.html`](sales/proposal-template.html). Every placeholder is highlighted so nothing
+goes out half-filled. See [`sales/README.md`](sales/README.md) for how to fill it in and re-render.
+
+The pitch it is built around: fill in the prospect's own lead form, note how long the first call takes,
+and open with that. Their own leak, measured, beats any testimonial you do not have yet.
+
+---
+
 ## Node map
 
 | Stage | Nodes |

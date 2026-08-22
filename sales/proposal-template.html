@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@page{size:A4;margin:15mm 15mm 16mm}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0F1B2D;--navy-8:#16273D;--ivory:#FAF7F2;--ivory-d:#F1ECE2;--line:#E7E1D4;--line-s:#EFEAE0;
+ --ink:#1B1B18;--dim:#5B5A52;--faint:#8B897E;--gold:#B8934D;--blue:#2F6FA8;--green:#1D7A52;--red:#A83629;--amber:#A8781A;
+ --d:'Fraunces',Georgia,serif;--b:'Inter',system-ui,sans-serif;--m:'JetBrains Mono',ui-monospace,monospace}
+body{font-family:var(--b);color:var(--ink);font-size:9pt;line-height:1.5;background:#fff}
+h1,h2,h3,h4{font-family:var(--d);font-weight:600;line-height:1.18}
+p{margin:0 0 6pt} b,strong{font-weight:600}
+ul{margin:0 0 6pt 14pt} li{margin-bottom:3pt}
+code{font-family:var(--m);font-size:8.4pt}
+
+/* FILL THESE IN — every highlighted span below is a placeholder */
+.fill{background:#FBF0D2;border-bottom:1px solid #E3CE95;padding:0 2pt;font-weight:600}
+
+.masthead{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid var(--navy);padding-bottom:3mm;margin-bottom:5mm}
+.mark{display:flex;align-items:center;gap:3mm}
+.logo{width:11mm;height:11mm;border-radius:3mm;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--d);font-size:15pt;font-weight:700}
+.you{font-family:var(--d);font-size:13pt;font-weight:600;line-height:1.1}
+.you span{display:block;font-family:var(--b);font-size:8pt;font-weight:400;color:var(--faint);letter-spacing:.6pt;text-transform:uppercase;margin-top:1mm}
+.meta{text-align:right;font-size:8.4pt;color:var(--faint);line-height:1.7}
+.meta b{display:block;color:var(--ink);font-size:9.4pt}
+
+h1.head{font-size:19pt;margin-bottom:2.5mm;max-width:152mm}
+p.lede{font-size:10pt;color:var(--dim);max-width:160mm;line-height:1.5;margin-bottom:5mm}
+
+.leak{border-left:3px solid var(--red);background:#FDF6F4;padding:4mm 5mm;margin-bottom:5mm;page-break-inside:avoid}
+.leak h3{font-size:11.5pt;margin-bottom:2.5mm}
+.leak p{margin-bottom:0;font-size:9.6pt}
+
+h3.sec{font-size:11.5pt;margin:0 0 2.5mm;padding-bottom:1.6mm;border-bottom:1px solid var(--line)}
+.flow{border:1px solid var(--line);border-radius:2.5mm;background:var(--ivory);padding:4mm 5mm;font-family:var(--m);font-size:7.2pt;line-height:1.65;white-space:pre;margin-bottom:5mm;overflow:hidden}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-bottom:5mm}
+.card{border:1px solid var(--line);border-radius:2mm;padding:2.6mm 3.2mm;page-break-inside:avoid}
+.card h4{font-size:9.2pt;margin-bottom:1mm}
+.card p{font-size:8.2pt;line-height:1.42;color:var(--dim);margin:0}
+
+table{width:100%;border-collapse:collapse;font-size:8.8pt;margin-bottom:6pt}
+th{background:var(--navy);color:#fff;text-align:left;padding:2.6mm 3mm;font-size:7.4pt;text-transform:uppercase;letter-spacing:.5pt;font-weight:600}
+td{padding:2.1mm 3mm;border-bottom:1px solid var(--line-s);vertical-align:top}
+tr:nth-child(even) td{background:var(--ivory)}
+td.price{font-family:var(--m);font-weight:500;white-space:nowrap;text-align:right}
+tr.pick td{background:#F1F7F3;border-bottom:1px solid #CBE3D6}
+tr.pick td:first-child{border-left:3px solid var(--green)}
+
+.note{border-left:3px solid var(--blue);background:var(--ivory);padding:3mm 4mm;margin-bottom:5pt;page-break-inside:avoid}
+.note.green{border-color:var(--green);background:#F1F7F3}
+.note.amber{border-color:var(--amber);background:#FCF8EF}
+.note h4{font-size:9.6pt;margin-bottom:1.5mm}
+.note p:last-child{margin-bottom:0}
+
+.page2{page-break-before:always}
+.sign{margin-top:5mm;border-top:1px solid var(--line);padding-top:4mm;display:grid;grid-template-columns:1fr 1fr;gap:10mm}
+.sign div{font-size:8.6pt;color:var(--faint)}
+.sign .rule{border-bottom:1px solid var(--ink);height:9mm;margin-bottom:1.5mm}
+.foot{margin-top:5mm;font-size:7.8pt;color:var(--faint);line-height:1.6;border-top:1px solid var(--line-s);padding-top:3mm}
+</style></head><body>
+
+<!-- ═══════════════════════ PAGE 1 ═══════════════════════ -->
+<div class="masthead">
+  <div class="mark">
+    <div class="logo">R</div>
+    <div class="you"><span class="fill">Your Business Name</span><span>WhatsApp automation for real estate</span></div>
+  </div>
+  <div class="meta">
+    Prepared for<b class="fill">Client Name, Company</b>
+    <span class="fill">21 August 2026</span> &middot; valid 30 days
+  </div>
+</div>
+
+<h1 class="head">Every enquiry answered in five seconds, and booked into your calendar before it goes cold.</h1>
+<p class="lede">A WhatsApp assistant that greets every lead the moment they submit, shares photos and the
+brochure on request, offers real slots from your sales calendar, and books the site visit &mdash; while
+writing all of it into a CRM your team can actually see.</p>
+
+<div class="leak">
+  <h3>What I found before writing this</h3>
+  <p>On <span class="fill">Tuesday 19 August at 3:10pm</span> I submitted an enquiry on your
+  <span class="fill">Project Name</span> advertisement. The first response came
+  <span class="fill">41 hours</span> later.</p>
+  <p style="margin-top:2mm">That is a coverage problem, not a team problem. Enquiries arrive at night, on
+  Sundays, and mid-site-visit &mdash; and a buyer comparing three builders talks to whoever answers first.</p>
+</div>
+
+<h3 class="sec">What happens instead</h3>
+<div class="flow">Buyer submits your ad or website form  →  answered in under 5 seconds, day or night
+        ▼
+  WhatsApp: "Welcome to <span class="fill">Your Company</span>"  +  three buttons
+        ├── View Details      → photos, price, carpet area, possession, RERA
+        ├── Download Brochure → your PDF, delivered in the chat
+        └── Schedule Visit    → live slots from your calendar → buyer picks one
+                                 → event created, sales manager invited
+  Anything they type instead → answered from your project data, never invented
+  Never replied?             → follow-ups paced by how warm the lead is</div>
+
+<h3 class="sec">What you get</h3>
+<div class="two">
+  <div class="card"><h4>Instant reply, every time</h4><p>Nights, Sundays, festival weekends. The first response is never late again, and it arrives on the channel Indian buyers actually read.</p></div>
+  <div class="card"><h4>Site visits booked without a call</h4><p>Real availability from your calendar, 45-minute slots inside office hours. The event lands on your sales manager's calendar with the buyer invited.</p></div>
+  <div class="card"><h4>A CRM that fills itself</h4><p>Every lead, message, and booking in one Google Sheet your team already knows how to use. Nothing to learn, nothing to log by hand.</p></div>
+  <div class="card"><h4>Leads scored, not just collected</h4><p>Each enquiry graded hot, warm, cold or timepass, so your team calls in the right order instead of top to bottom.</p></div>
+  <div class="card"><h4>Follow-ups that stop on time</h4><p>Hot leads chased every 3 days, cold every 21, and a hard stop at six. Anyone mid-conversation is skipped automatically.</p></div>
+  <div class="card"><h4>A live dashboard</h4><p>Pipeline, conversion by source, upcoming visits, and which project is actually pulling demand.</p></div>
+</div>
+
+<!-- ═══════════════════════ PAGE 2 ═══════════════════════ -->
+<div class="page2">
+<h3 class="sec">Investment</h3>
+<table>
+<tr><th style="width:26mm">Package</th><th>What is included</th><th style="width:22mm;text-align:right">Setup</th><th style="width:22mm;text-align:right">Monthly</th></tr>
+<tr><td><b>Starter</b></td><td>One project. WhatsApp menu, details, brochure, site-visit booking, Sheets CRM, calendar.</td><td class="price">&#8377;<span class="fill">25,000</span></td><td class="price">&#8377;<span class="fill">6,000</span></td></tr>
+<tr class="pick"><td><b>Growth</b><br><span style="font-size:7.4pt;color:var(--green);font-weight:600">RECOMMENDED</span></td><td>Starter plus AI replies to typed questions, lead grading, the follow-up engine, and the live dashboard.</td><td class="price">&#8377;<span class="fill">50,000</span></td><td class="price">&#8377;<span class="fill">12,000</span></td></tr>
+<tr><td><b>Multi-project</b></td><td>Three or more projects, multiple sales users, routing by project, monthly performance reporting.</td><td class="price">&#8377;<span class="fill">90,000</span></td><td class="price">&#8377;<span class="fill">20,000</span></td></tr>
+</table>
+<p style="font-size:8.4pt;color:var(--dim)">Monthly covers hosting, monitoring, template and content changes, and support. Setup billed 50% to
+start, 50% on go-live. <b>Running costs are yours, unmarked-up:</b> WhatsApp conversations billed by Meta
+per conversation, AI usage billed by Anthropic &mdash; both on your own accounts, so you see exactly what
+the channel costs. Hosting is included.</p>
+
+<div class="note green">
+<h4>Pilot terms &mdash; because you have not seen this run on your leads yet</h4>
+<p>Setup at <b>half the price above</b> for the first project. In return, once it has run 60 days I would
+like a short written testimonial and permission to reference the results.</p>
+<p style="margin-top:2mm"><b>And if it does not work, you do not pay.</b> If it has not delivered
+<span class="fill">20</span> qualified WhatsApp conversations in 30 days, I refund the setup in full and
+you keep the CRM sheet and everything in it.</p>
+</div>
+
+<div class="two" style="margin-top:6mm">
+  <div>
+    <h3 class="sec">What I need from you</h3>
+    <ul>
+      <li>A phone number for WhatsApp Business that is <b>not</b> already on regular WhatsApp</li>
+      <li>Meta Business verification for your company &mdash; your team completes this, it can take several days</li>
+      <li>Project content: photos, price range, carpet area, possession, RERA number, brochure PDF</li>
+      <li>A Google account for the CRM sheet and the sales calendar</li>
+      <li>One person on your side who can answer questions during setup</li>
+    </ul>
+  </div>
+  <div>
+    <h3 class="sec">Timeline</h3>
+    <ul>
+      <li><b>Day 1&ndash;2</b> &mdash; accounts, credentials, project content loaded</li>
+      <li><b>Day 3&ndash;5</b> &mdash; WhatsApp templates submitted to Meta for approval</li>
+      <li><b>Day 5&ndash;7</b> &mdash; end-to-end testing on your numbers</li>
+      <li><b>Go-live</b> &mdash; ads pointed at the system, team walkthrough</li>
+    </ul>
+    <p style="font-size:8.2pt;color:var(--faint)">Meta's verification and template review are outside my
+    control and are the usual reason a go-live slips.</p>
+  </div>
+</div>
+
+<div class="note amber">
+<h4>Worth being clear about</h4>
+<p>This books site visits &mdash; it does not close sales. Your team still has to show up and sell. What it
+removes is the reason good leads go cold before anyone speaks to them.</p>
+<p style="margin-top:2mm">The CRM sheet, the WhatsApp number and the Meta account are yours and stay in
+your accounts &mdash; buyer data never leaves them. Stop the monthly and you keep every lead, message and
+booking: you lose the automation, not the record. Thirty days' notice either way, no lock-in.</p>
+</div>
+
+<div class="sign">
+  <div><div class="rule"></div>For <span class="fill">Client Company</span> &middot; name, date</div>
+  <div><div class="rule"></div>For <span class="fill">Your Business Name</span> &middot; name, date</div>
+</div>
+
+<div class="foot">
+<b class="fill">Your Name</b> &middot; <span class="fill">+91 00000 00000</span> &middot;
+<span class="fill">you@yourdomain.com</span><br>
+Prices valid 30 days from the date above. Everything highlighted in this document is a placeholder to be
+replaced before sending.
+</div>
+</div>
+</body></html>
