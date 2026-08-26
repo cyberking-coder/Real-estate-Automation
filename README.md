@@ -66,6 +66,11 @@ Everything — inbound taps, outbound replies, bookings — is written back to G
   the dashboard expects JSON.
 * **Test through the tunnel with curl**, which ngrok does not treat as a browser:
   `curl https://your-host.ngrok-free.app/webhook/lead-intake`. If that reaches n8n, Meta will too.
+* **`ERR_NGROK_6024` means the interstitial, not a failure.** ngrok's free plan answers browser-looking
+  requests with an HTML warning page instead of your payload. The lead form and dashboard now send
+  `ngrok-skip-browser-warning: true` to get past it. A free tunnel is fine for your own testing — but a
+  client's website form will hit that interstitial too, which is one more reason production needs hosted
+  n8n on a real domain rather than a tunnel.
 * Tunnel port 5678, and remember the free URL changes on every restart — update `WEBHOOK_URL` *and* the
   Meta callback each time.
 

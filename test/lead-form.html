@@ -161,7 +161,9 @@ $('f').addEventListener('submit', async (e) => {
   try {
     res = await fetch(url, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      // ngrok's free plan serves a browser interstitial (ERR_NGROK_6024) instead of the
+      // response unless this header is present. Harmless on any other host.
+      headers: { 'content-type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
       body: JSON.stringify(payload)
     });
     raw = await res.text();

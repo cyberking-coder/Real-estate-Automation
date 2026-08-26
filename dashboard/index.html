@@ -664,7 +664,11 @@ async function load(manual){
     const u = new URL(CFG.url);
     u.searchParams.set('key', CFG.key);
     u.searchParams.set('_', Date.now());
-    const res = await fetch(u.toString(), { method: 'GET', cache: 'no-store' });
+    // ngrok free serves an HTML interstitial (ERR_NGROK_6024) rather than the payload without
+    // this header. It makes the request preflighted, so only send it when talking to a tunnel -
+    // pointing the dashboard at localhost avoids the whole problem and is faster.
+    const headers = /\.ngrok(-free)?\.(app|dev)$/i.test(u.hostname) ? { 'ngrok-skip-browser-warning': 'true' } : {};
+    const res = await fetch(u.toString(), { method: 'GET', cache: 'no-store', headers });
     if (res.status === 401) throw { title: 'n8n rejected the key',
       body: 'The webhook answered, so the connection works - the <code>key</code> just does not match.',
       fixes: ['Open RE-06 in n8n, read <code>DASHBOARD_KEY</code> from the Config node, and paste the same value here.'] };
