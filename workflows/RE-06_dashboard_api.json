@@ -242,8 +242,7 @@
     },
     {
       "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify($json) }}",
+        "respondWith": "firstIncomingItem",
         "options": {
           "responseHeaders": {
             "entries": [
@@ -266,7 +265,8 @@
       "position": [
         640,
         160
-      ]
+      ],
+      "notes": "Returns the payload item as-is. Building the body with JSON.stringify made n8n round-trip a large object through parse for no reason, and an empty 200 was the result."
     },
     {
       "parameters": {
