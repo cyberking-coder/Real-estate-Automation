@@ -146,8 +146,13 @@ plus `owner` and `notes` on `Leads`.
 
 > **Publish your Google OAuth consent screen before going live.** While it sits in *Testing*, Google
 > expires refresh tokens after **7 days** and every Google node — Sheets, Calendar, Gmail — starts
-> failing with *"the credential needs to be reconnected"*. Google Cloud Console → **APIs & Services →
-> OAuth consent screen → Publish App**. Using only your own account's data needs no verification review.
+> failing with *"the credential needs to be reconnected"*.
+>
+> **Client on Google Workspace?** Create the OAuth client in their org with **User type = Internal** — no
+> expiry, no unverified warning, no verification, and buyer data stays in their own Google organisation.
+> **On a personal Gmail?** Use External and click **Publish App** (Google Cloud Console → APIs & Services →
+> OAuth consent screen). Leave home page / privacy policy / terms blank — those are only for submitting to
+> verification. The "Google hasn't verified this app" screen on connect is expected.
 
 ## 4. Fill in the `Config` node
 
