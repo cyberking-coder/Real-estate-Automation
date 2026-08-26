@@ -141,6 +141,11 @@ plus `owner` and `notes` on `Leads`.
 | **Gmail OAuth2** | sales-manager emails (optional — those nodes continue on error) |
 | **Anthropic** (API key) | lead grading, the free-text agent, follow-up copy. Used via *Predefined Credential Type → Anthropic*, so **no key is stored in these JSONs** |
 
+> **Publish your Google OAuth consent screen before going live.** While it sits in *Testing*, Google
+> expires refresh tokens after **7 days** and every Google node — Sheets, Calendar, Gmail — starts
+> failing with *"the credential needs to be reconnected"*. Google Cloud Console → **APIs & Services →
+> OAuth consent screen → Publish App**. Using only your own account's data needs no verification review.
+
 ## 4. Fill in the `Config` node
 
 Open the workflow and edit the single **`Config`** node — it is the only place with settings:
