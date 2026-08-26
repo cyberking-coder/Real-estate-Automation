@@ -71,8 +71,11 @@ Everything — inbound taps, outbound replies, bookings — is written back to G
   `ngrok-skip-browser-warning: true` to get past it. A free tunnel is fine for your own testing — but a
   client's website form will hit that interstitial too, which is one more reason production needs hosted
   n8n on a real domain rather than a tunnel.
-* Tunnel port 5678, and remember the free URL changes on every restart — update `WEBHOOK_URL` *and* the
-  Meta callback each time.
+* Tunnel port 5678. **Claim ngrok's free static domain** (`something.ngrok-free.dev`) rather than an
+  ephemeral tunnel — the URL is also baked into n8n's OAuth callback
+  (`<base>/rest/oauth2-credential/callback`), which must be registered in Google Cloud Console under
+  *Credentials → your OAuth client → Authorised redirect URIs*. A rotating URL means re-registering it,
+  and re-saving the Meta callback, on every restart.
 
 Docker one-liner (set the tunnel host so webhook URLs are generated correctly):
 
